@@ -3,12 +3,11 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-
     return LaunchDescription([
         Node(
-            package="sunfounder_robot_hat",
+            package="robot_hat_driver",
             executable="robot_hat_node",
-            name="robot_hat",
+            name="robot_hat_node",
             parameters=[
                 "config/robot_hat.yaml"
             ],

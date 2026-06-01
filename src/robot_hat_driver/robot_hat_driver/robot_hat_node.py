@@ -12,7 +12,7 @@ from .hardware import RobotHatHardware
 class RobotHatNode(Node):
 
     def __init__(self):
-        super().__init__("robot_hat")
+        super().__init__("robot_hat_node")
 
         self.hw = RobotHatHardware()
 
