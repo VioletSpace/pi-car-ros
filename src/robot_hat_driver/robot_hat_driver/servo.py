@@ -21,6 +21,8 @@ class Servo(PWM):
         self.period(self.PERIOD)
         prescaler = self.CLOCK / self.FREQ / self.PERIOD
         self.prescaler(prescaler)
+        self.target_angle = 0.0
+        self.angle(self.target_angle)
 
     def angle(self, angle):
         """
@@ -36,6 +38,7 @@ class Servo(PWM):
             angle = -90
         if angle > 90:
             angle = 90
+        self.target_angle = angle
         self._debug(f"Set angle to: {angle}")
         pulse_width_time = mapping(angle, -90, 90, self.MIN_PW, self.MAX_PW)
         self._debug(f"Pulse width: {pulse_width_time}")

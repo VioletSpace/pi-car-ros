@@ -7,11 +7,13 @@
   <license>Apache-2.0</license>
   <author>Johanna Pluschke</author>
 
-  <!--<exec_depend>python3</exec_depend>
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>std_msgs</exec_depend>-->
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_mypy</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_xmllint</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
   <exec_depend>python3-smbus2</exec_depend>
   <exec_depend>python3-gpiozero</exec_depend>
   

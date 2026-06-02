@@ -5,3 +5,5 @@ robot_hat_node:
     motor_right_id: 2
     motor_left_reversed: False
     motor_right_reversed: False
+    servo_channels:
+     - "P0"

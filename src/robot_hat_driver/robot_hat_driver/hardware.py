@@ -17,8 +17,7 @@ class RobotHatHardware:
             raise RuntimeError("GPIO not available")
         
         self.motors = Motors(params["lmid"], params["rmid"], params["lmrev"], params["rmrev"])
-        self.servo1 = Servo("P0")
-        self.servo2 = Servo("P1")
+        self.servos = [Servo(ch) for ch in params["servo_channels"]]
         self.battery_adc = ADC("A4")
 
         self.logger.info("Hardware ready")
@@ -33,11 +32,10 @@ class RobotHatHardware:
         self.set_motor_speeds(0.0, 0.0)
 
     def set_servo(self, channel: int, angle: float):
-        angle = max(-90.0, min(90.0, angle))
-        if channel == 1:
-            self.servo1.angle(angle)
-        elif channel == 2:
-            self.servo2.angle(angle)
+        if channel < len(self.servos)-1 and channel >= 0:
+            self.servos[channel].angle(angle)
+        else:
+            self.logger.warn("Invalid servo index %d of %d" % (channel, len(self.servos)))
 
     def battery_voltage(self):
         raw = self.battery_adc.read()

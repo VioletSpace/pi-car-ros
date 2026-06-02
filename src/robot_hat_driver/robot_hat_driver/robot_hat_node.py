@@ -36,7 +36,8 @@ class RobotHatNode(Node):
             "lmid": self.get_parameter('motor_left_id').get_parameter_value().integer_value,
             "rmid": self.get_parameter('motor_right_id').get_parameter_value().integer_value,
             "lmrev": self.get_parameter('motor_left_reversed').get_parameter_value().bool_value,
-            "rmrev": self.get_parameter('motor_right_reversed').get_parameter_value().bool_value
+            "rmrev": self.get_parameter('motor_right_reversed').get_parameter_value().bool_value,
+            "servo_channels": self.get_parameter('servo_channels').get_parameter_value().string_array_value
         }
         self.get_logger().info(
             'Starting Robot Hat Driver with max_motor_percent: %f, motor_left_id: %d, motor_right_id: %d, motor_left_reversed: %r, motor_right_reversed: %r'
@@ -45,54 +46,45 @@ class RobotHatNode(Node):
         
         self.hw = RobotHatHardware(params, self.get_logger())
 
-        self.cmd_vel_sub = self.create_subscription(
-            Twist,
-            "cmd_vel",
-            self.cmd_vel_callback,
+        self.servo_sub = self.create_subscription(
+            Float64MultiArray,
+            "servo_target_angles",
+            self.servo_callback,
             10,
         )
-
-        #self.servo_sub = self.create_subscription(
-        #    Float64MultiArray,
-        #    "servo_angles",
-        #    self.servo_callback,
-        #    10,
-        #)
 
         self.battery_pub = self.create_publisher(
             BatteryState,
             "battery_state",
             10,
         )
+        self.timer = self.create_timer(1.0, self.publish_battery)
 
-        self.timer = self.create_timer(
-            1.0,
-            self.publish_battery,
+        self.servo_angle_pub = self.create_publisher(
+            Float64MultiArray,
+            "servo_angles",
+            10
         )
+        self.timer = self.create_timer(0.01, self.publish_servo_angles)
 
-    def cmd_vel_callback(self, msg: Twist):
-        linear = msg.linear.x
-        angular = msg.angular.z
-
-        left = linear - angular
-        right = linear + angular
-
-        left *= self.mmaxpercent
-        right *= self.mmaxpercent
-
-        self.hw.set_motor_speeds(left, right)
-
-    #def servo_callback(self, msg: Float64MultiArray):
-    #    if len(msg.data) > 0:
-    #        self.hw.set_servo(1, msg.data[0])
-    #    if len(msg.data) > 1:
-    #        self.hw.set_servo(2, msg.data[1])
+    def servo_callback(self, msg: Float64MultiArray):
+        if len(msg.data) != len(self.hw.servos):
+            self.get_logger().warn(
+                "Received mismatching servo target angles: %d angles for %d servos. Ignoring."
+                % (len(msg.data), len(self.hw.servos))
+            )
+            return
+        for i,angle in enumerate(msg.data):
+            self.hw.set_servo(i, angle)
 
     def publish_battery(self):
         battery = BatteryState()
         battery.voltage = self.hw.battery_voltage()
 
         self.battery_pub.publish(battery)
+
+    def publish_servo_angles(self):
+        self.servo_angle_pub.publish([float(s.target_angle) for s in self.hw.servos])
 
     def destroy_node(self):
         self.hw.stop()
