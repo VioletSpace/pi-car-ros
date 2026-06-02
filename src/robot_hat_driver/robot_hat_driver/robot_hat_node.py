@@ -43,7 +43,7 @@ class RobotHatNode(Node):
             % (params["mmaxpercent"], params["lmid"], params["rmid"], params["lmrev"], params["rmrev"])
             )
         
-        self.hw = RobotHatHardware(params)
+        self.hw = RobotHatHardware(params, self.get_logger())
 
         self.cmd_vel_sub = self.create_subscription(
             Twist,
