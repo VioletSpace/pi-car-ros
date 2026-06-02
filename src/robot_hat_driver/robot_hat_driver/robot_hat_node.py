@@ -31,6 +31,7 @@ class RobotHatNode(Node):
         self.declare_parameter("motor_right_id", 2)
         self.declare_parameter("motor_left_reversed", False)
         self.declare_parameter("motor_right_reversed", False)
+        self.declare_parameter("servo_channels", ["-1"])
         params = {
             "mmaxpercent": self.get_parameter("max_motor_percent").get_parameter_value().double_value,
             "lmid": self.get_parameter('motor_left_id').get_parameter_value().integer_value,

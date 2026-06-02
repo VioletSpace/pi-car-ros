@@ -1,2 +1,3 @@
-picar_controller_node:
+state_publisher_node:
   ros__parameters:
+    test: 0

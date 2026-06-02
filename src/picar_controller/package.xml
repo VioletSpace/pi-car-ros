@@ -14,8 +14,8 @@
   <test_depend>ament_xmllint</test_depend>
   <test_depend>python3-pytest</test_depend>
 
-  <depend>robot_hat_driver</depend>
-  <depend>picar_description</depend>
+  <exec_depend>robot_hat_driver</exec_depend>
+  <exec_depend>picar_description</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>
