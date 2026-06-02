@@ -1,5 +1,5 @@
 [Unit]
-Description=ROS2 Pi-Car Robot
+Description=PiCar robot ROS2 startup service
 After=network-online.target systemd-udev-settle.service
 Wants=network-online.target systemd-udev-settle.service
 # Wait for hardware devices (USB, I2C, GPIO)
