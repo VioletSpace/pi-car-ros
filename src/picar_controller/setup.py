@@ -9,8 +9,8 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/'+package_name]),
         ('share/'+package_name,           ['package.xml']),
-        ('share/'+package_name+"/launch", ["launch/robot_hat.launch.xml"]),
-        ('share/'+package_name+"/config", ["config/robot_hat.yaml"]),
+        ('share/'+package_name+"/launch", ["launch/controller.launch.xml"]),
+        ('share/'+package_name+"/config", ["config/controller.yaml"]),
       ],
     package_data={'': ['py.typed']},
     install_requires=['setuptools'],
