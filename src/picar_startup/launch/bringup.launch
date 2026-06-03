@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <include file="$(find-pkg-share robot_hat_driver)/launch/robot_hat.launch" />
+
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher" output="screen" respawn="true">
+    <param name="robot_description" value="$(command 'xacro $(find-pkg-share picar_description)/urdf/picar.urdf.xacro')" />
+  </node>
+
+  <include file="$(find-pkg-share picar_controller)/launch/controller.launch" />
+</launch>

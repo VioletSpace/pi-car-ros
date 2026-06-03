@@ -67,6 +67,7 @@ class RobotHatNode(Node):
             10
         )
         self.timer = self.create_timer(0.01, self.publish_servo_angles)
+        self.get_logger().info('Node ready')
 
     def servo_callback(self, msg: Float64MultiArray):
         if len(msg.data) != len(self.hw.servos):
