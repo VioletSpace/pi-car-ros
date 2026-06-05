@@ -94,9 +94,6 @@ class RobotHatNode(Node):
 
 
 def main(args=None):
-    rclpy.init()
-    node = RobotHatNode()
-
     try:
         with rclpy.init(args=args):
             rh_node = RobotHatNode()
@@ -104,7 +101,7 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
 
-    node.destroy_node()
+    rh_node.destroy_node()
     rclpy.shutdown()
 
 

@@ -21,7 +21,7 @@ colcon build --symlink-install
 Then source it and start the control stack with
 ```console
 source install/setup.bash
-ros2 launch picar_startup bringup.launch.xml
+ros2 launch picar_startup bringup.launch
 ```
 If you want to automatically restart the control stack on boot (recommended), you can use the robot_startup.service.
 You will want to change the user "ex123" in robot_startup.service to your user (by default pi). Then
