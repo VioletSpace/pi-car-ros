@@ -175,7 +175,7 @@ class RobotHatNode(Node):
         msg.step = 6
         msg.data = struct.pack('>3H', *data)
         
-        self.gs_s_pub.publish(msg)
+        self.gs_pub.publish(msg)
 
 
     def destroy_node(self):
