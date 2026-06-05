@@ -167,9 +167,9 @@ class RobotHatNode(Node):
         msg.height = 1
         msg.width = 3
         msg.encoding = 'mono16'
-        msg.is_bigendian = True
+        msg.is_bigendian = False
         msg.step = 6
-        msg.data = struct.pack('>3H', *data)
+        msg.data = struct.pack('<3H', *data)
         
         self.gs_pub.publish(msg)
 
