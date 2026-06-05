@@ -46,8 +46,8 @@ class Ultrasonic():
             return -2
 
         during = pulse_end - pulse_start
-        cm = round(during * self.SOUND_SPEED / 2 * 100, 2)
-        return cm
+        m = round(during * self.SOUND_SPEED / 2, 2)
+        return m
 
     def read(self, times=10):
         for i in range(times):

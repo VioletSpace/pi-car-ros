@@ -152,7 +152,7 @@ class RobotHatNode(Node):
         msg.radiation_type = Range.ULTRASOUND # Or 0
         msg.field_of_view = 0.52  # ~30 degrees
         msg.min_range = 0.02
-        msg.max_range = 4.0
+        msg.max_range = 6.0
         msg.range = self.hw.ultrasonic.read()
         
         self.us_pub.publish(msg)
