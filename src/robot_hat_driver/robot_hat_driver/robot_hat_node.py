@@ -13,10 +13,11 @@
 # limitations under the License.
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import BatteryState
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float64, Float64MultiArray
 
 from .hardware import RobotHatHardware
 
@@ -44,6 +45,8 @@ class RobotHatNode(Node):
             'Starting Robot Hat Driver with max_motor_percent: %f, motor_left_id: %d, motor_right_id: %d, motor_left_reversed: %r, motor_right_reversed: %r'
             % (params["mmaxpercent"], params["lmid"], params["rmid"], params["lmrev"], params["rmrev"])
             )
+        if params["mmaxpercent"] > 100.0:
+            self.get_logger().warn("max_motor_percent %f exceeds maximum of 100.0" % params["mmaxpercent"])
         
         self.hw = RobotHatHardware(params, self.get_logger())
 
@@ -51,6 +54,13 @@ class RobotHatNode(Node):
             Float64MultiArray,
             "servo_target_angles",
             self.servo_callback,
+            10,
+        )
+
+        self.motor_sub = self.create_subscription(
+            Float64,
+            "motor_speed",
+            self.motor_callback,
             10,
         )
 
@@ -78,6 +88,9 @@ class RobotHatNode(Node):
             return
         for i,angle in enumerate(msg.data):
             self.hw.set_servo(i, angle)
+
+    def motor_callback(self, msg: Float64):
+        self.hw.set_motor_speeds(msg.data, msg.data)
 
     def publish_battery(self):
         battery = BatteryState()

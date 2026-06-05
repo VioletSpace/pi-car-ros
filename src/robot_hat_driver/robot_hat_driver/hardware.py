@@ -8,6 +8,7 @@ from .adc import ADC
 class RobotHatHardware:
     def __init__(self, params, logger):
         self.logger = logger
+        self.params = params
 
         if not os.path.exists("/dev/i2c-1"):
             self.logger.error("I2C bus missing (/dev/i2c-1)  - incorrect environment")
@@ -23,8 +24,11 @@ class RobotHatHardware:
         self.logger.info("Hardware ready")
 
     def set_motor_speeds(self, left: float, right: float):
-        lefts = max(-100.0, min(100.0, left))
-        rights = max(-100.0, min(100.0, right))
+        mp = self.params["mmaxpercent"]
+        if left < -mp or left > mp or right < -mp or right > mp:
+            self.logger.warn("Motor speed out of range: l:%f r:%f /%f" % (left, right, mp))
+        lefts = max(-mp, min(mp, left))
+        rights = max(-mp, min(mp, right))
         self.motors.left.speed(lefts)
         self.motors.right.speed(rights)
 
