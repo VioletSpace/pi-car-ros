@@ -167,7 +167,7 @@ class RobotHatNode(Node):
         msg.height = 1
         msg.width = 3
         msg.encoding = 'mono16'
-        msg.is_bigendian = False
+        msg.is_bigendian = True
         msg.step = 6
         msg.data = struct.pack('>3H', *data)
         
