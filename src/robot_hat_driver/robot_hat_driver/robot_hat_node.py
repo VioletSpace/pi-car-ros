@@ -100,11 +100,10 @@ def main(args=None):
         with rclpy.init(args=args):
             rh_node = RobotHatNode()
             rclpy.spin(rh_node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
 
     rh_node.destroy_node()
-    rclpy.shutdown()
 
 
 if __name__ == "__main__":
