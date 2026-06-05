@@ -43,7 +43,7 @@ class Ultrasonic():
             if pulse_end - timeout_start > self.timeout:
                 return -1
         if pulse_start == 0 or pulse_end == 0:
-            return -2
+            return -1
 
         during = pulse_end - pulse_start
         m = round(during * self.SOUND_SPEED / 2, 2)
