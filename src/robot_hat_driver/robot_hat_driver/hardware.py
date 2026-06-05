@@ -32,7 +32,7 @@ class RobotHatHardware:
         self.set_motor_speeds(0.0, 0.0)
 
     def set_servo(self, channel: int, angle: float):
-        if channel < len(self.servos)-1 and channel >= 0:
+        if channel < len(self.servos) and channel >= 0:
             self.servos[channel].angle(angle)
         else:
             self.logger.warn("Invalid servo index %d of %d" % (channel, len(self.servos)))
