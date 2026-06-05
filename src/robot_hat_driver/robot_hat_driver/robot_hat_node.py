@@ -86,7 +86,9 @@ class RobotHatNode(Node):
         self.battery_pub.publish(battery)
 
     def publish_servo_angles(self):
-        self.servo_angle_pub.publish([float(s.target_angle) for s in self.hw.servos])
+        msg = Float64MultiArray()
+        msg.data = [float(s.target_angle) for s in self.hw.servos]
+        self.servo_angle_pub.publish(msg)
 
     def destroy_node(self):
         self.hw.stop()
