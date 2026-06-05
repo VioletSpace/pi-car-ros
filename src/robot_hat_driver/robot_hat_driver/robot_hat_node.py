@@ -94,11 +94,7 @@ class RobotHatNode(Node):
             self.timer = self.create_timer(0.5, self.publish_sonar)
         
         if params["gs_s"]:
-            self.gs_pub = self.create_publisher(
-                Range,
-                "grayscale",
-                10,
-            )
+            self.gs_pub = self.create_publisher(Image, "grayscale", 10)
             self.timer = self.create_timer(0.1, self.publish_grayscale)
 
         self.servo_angle_pub = self.create_publisher(
