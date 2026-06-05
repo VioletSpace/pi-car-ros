@@ -3,6 +3,7 @@ import os
 from .servo import Servo
 from .motor import Motors
 from .adc import ADC
+from .pin import Pin
 
 
 class RobotHatHardware:
@@ -20,8 +21,19 @@ class RobotHatHardware:
         self.motors = Motors(params["lmid"], params["rmid"], params["lmrev"], params["rmrev"])
         self.servos = [Servo(ch) for ch in params["servo_channels"]]
         self.battery_adc = ADC("A4")
+        self._led_active = False
+        self._led = Pin('LED')
 
         self.logger.info("Hardware ready")
+    
+    def led(self, status=None):
+        if status==None:
+            return self._led_active
+        self._led_active = status
+        if self._led_active:
+            self._led.on()
+        else:
+            self._led.off()
 
     def set_motor_speeds(self, left: float, right: float):
         mp = self.params["mmaxpercent"]

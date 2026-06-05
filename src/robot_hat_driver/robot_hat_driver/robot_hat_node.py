@@ -17,7 +17,7 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import BatteryState
-from std_msgs.msg import Float64, Float64MultiArray
+from std_msgs.msg import Bool, Float64, Float64MultiArray
 
 from .hardware import RobotHatHardware
 
@@ -50,6 +50,13 @@ class RobotHatNode(Node):
         
         self.hw = RobotHatHardware(params, self.get_logger())
 
+        self.led_sub = self.create_subscription(
+            Bool,
+            "robot_hat_led",
+            self.led_callback,
+            10,
+        )
+        
         self.servo_sub = self.create_subscription(
             Float64MultiArray,
             "servo_target_angles",
@@ -78,6 +85,13 @@ class RobotHatNode(Node):
         )
         self.timer = self.create_timer(0.01, self.publish_servo_angles)
         self.get_logger().info('Node ready')
+
+    def led_callback(self, msg: Bool):
+        if msg.data:
+            self.get_logger().info("Activating Robot HAT LED")
+        else:
+            self.get_logger().info("Deactivating Robot HAT LED")
+        self.hw.led(msg.data)
 
     def servo_callback(self, msg: Float64MultiArray):
         if len(msg.data) != len(self.hw.servos):
