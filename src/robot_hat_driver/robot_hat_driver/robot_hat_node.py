@@ -142,8 +142,6 @@ class RobotHatNode(Node):
 
     def publish_servo_angles(self):
         msg = Float64MultiArray()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
         msg.data = [float(s.target_angle) for s in self.hw.servos]
         self.servo_angle_pub.publish(msg)
 
