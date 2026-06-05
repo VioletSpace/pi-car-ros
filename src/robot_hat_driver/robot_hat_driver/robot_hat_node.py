@@ -148,7 +148,7 @@ class RobotHatNode(Node):
             return
         msg = Range()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
+        msg.header.frame_id = 'sonar_sensor'
         msg.radiation_type = Range.ULTRASOUND # Or 0
         msg.field_of_view = 0.52  # ~30 degrees
         msg.min_range = 0.02
@@ -163,7 +163,7 @@ class RobotHatNode(Node):
         data = self.hw.grayscale.read()
         msg = Image()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
+        msg.header.frame_id = 'grayscale_sensor'
         msg.height = 1
         msg.width = 3
         msg.encoding = 'mono16'

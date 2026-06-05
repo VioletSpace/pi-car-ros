@@ -5,9 +5,9 @@
   <!-- base link -->
   <link name="base_link">
     <visual>
-      <origin xyz="0.064 0 0" />
+      <origin xyz="0.045 0 0" />
       <geometry>
-        <box size="0.21 0.078 0.002"/>
+        <box size="0.18 0.08 0.002"/>
       </geometry>
     </visual>
   </link>
@@ -29,37 +29,33 @@
       <origin rpy="1.5708 0 0"/>
     </visual>
   </link>
-
   <joint name="rear_left_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child link="rear_left_wheel"/>
-    <origin xyz="0 0.053 -0.015" rpy="0 0 0"/>
+    <origin xyz="0 0.06 -0.015" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
   </joint>
-
   <joint name="rear_right_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child link="rear_right_wheel"/>
-    <origin xyz="0 -0.053 -0.015" rpy="0 0 0"/>
+    <origin xyz="0 -0.06 -0.015" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
   </joint>
 
   <!-- steering axle -->
   <link name="left_axle_link"/>
   <link name="right_axle_link"/>
-
   <joint name="left_steering_joint" type="revolute">
     <parent link="base_link"/>
     <child link="left_axle_link"/>
-    <origin xyz="0.14 0.048 -0.015" rpy="0 0 0"/>
+    <origin xyz="0.095 0.043 -0.015" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit lower="-0.6" upper="0.6" effort="1" velocity="1"/>
   </joint>
-
   <joint name="right_steering_joint" type="revolute">
     <parent link="base_link"/>
     <child link="right_axle_link"/>
-    <origin xyz="0.14 -0.048 -0.015" rpy="0 0 0"/>
+    <origin xyz="0.095 -0.043 -0.015" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit lower="-0.6" upper="0.6" effort="1" velocity="1"/>
   </joint>
@@ -81,19 +77,43 @@
       <origin rpy="1.5708 0 0"/>
     </visual>
   </link>
-
   <joint name="front_left_wheel_joint" type="continuous">
     <parent link="left_axle_link"/>
     <child link="front_left_wheel"/>
     <origin xyz="0 0.01 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
   </joint>
-
   <joint name="front_right_wheel_joint" type="continuous">
     <parent link="right_axle_link"/>
     <child link="front_right_wheel"/>
     <origin xyz="0 -0.01 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- sensor positions -->
+  <link name="sonar_sensor">
+   <visual>
+      <geometry>
+        <box size="0.015 0.06 0.02"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="sonar_sensor_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_sensor"/>
+    <origin xyz="0.14 0 -0.01" rpy="0 0 0"/>
+  </joint>
+  <link name="grayscale_sensor">
+   <visual>
+      <geometry>
+        <box size="0.06 0.02 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="grayscale_sensor_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="grayscale_sensor"/>
+    <origin xyz="0.15 0 -0.03" rpy="0 3.14159 1.57079"/>
   </joint>
 
 </robot>
