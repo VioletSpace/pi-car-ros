@@ -5,7 +5,7 @@ from .servo import Servo
 from .motor import Motors
 from .adc import ADC
 from .pin import Pin
-import utils
+from . import utils
 
 
 class RobotHatHardware:
