@@ -6,6 +6,7 @@ from .motor import Motors
 from .adc import ADC
 from .pin import Pin
 from . import utils
+from .modules import Grayscale_Module, Ultrasonic
 
 
 class RobotHatHardware:
@@ -28,6 +29,15 @@ class RobotHatHardware:
         self.battery_adc = ADC("A4")
         self._led_active = False
         self._led = Pin('LED')
+
+        if params['us_s']:
+            self.ultrasonic = Ultrasonic(Pin(params["us_pins"][0]), Pin(params["us_pins"][1], mode=Pin.IN, pull=Pin.PULL_DOWN))
+            self.logger.info("Sonar sensor available")
+
+        if params['gs_s']:
+            adc0, adc1, adc2 = [ADC(pin) for pin in params['gs_pins']]
+            self.grayscale = Grayscale_Module(adc0, adc1, adc2, reference=None)
+            self.logger.info("Grayscale sensor available")
 
         self.logger.info("Hardware ready")
     
