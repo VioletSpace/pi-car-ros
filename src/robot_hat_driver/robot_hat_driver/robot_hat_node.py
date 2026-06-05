@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import struct
+
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -163,7 +165,6 @@ class RobotHatNode(Node):
         if not self.sensors_active:
             return
         data = self.hw.grayscale.read()
-        data = [data[0]/256,data[0]%256,data[1]/256,data[1]%256,data[2]/256,data[2]%256]
         msg = Image()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'base_link'
@@ -172,7 +173,7 @@ class RobotHatNode(Node):
         msg.encoding = 'mono16'
         msg.is_bigendian = True
         msg.step = 6
-        msg.data = bytes(data)
+        msg.data = struct.pack('>3H', *data)
         
         self.gs_s_pub.publish(msg)
 
