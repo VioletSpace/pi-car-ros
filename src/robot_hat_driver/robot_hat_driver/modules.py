@@ -54,7 +54,7 @@ class Ultrasonic():
             a = self._read()
             if a != -1:
                 return a
-        return -1
+        return 0.0
 
 class ADXL345(I2C):
     """ADXL345 modules"""
