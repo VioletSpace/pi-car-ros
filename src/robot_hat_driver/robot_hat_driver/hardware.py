@@ -1,15 +1,20 @@
 import os
+import time
 
 from .servo import Servo
 from .motor import Motors
 from .adc import ADC
 from .pin import Pin
+import utils
 
 
 class RobotHatHardware:
     def __init__(self, params, logger):
         self.logger = logger
         self.params = params
+
+        utils.reset_mcu()
+        time.sleep(0.2)
 
         if not os.path.exists("/dev/i2c-1"):
             self.logger.error("I2C bus missing (/dev/i2c-1)  - incorrect environment")
@@ -54,5 +59,5 @@ class RobotHatHardware:
             self.logger.warn("Invalid servo index %d of %d" % (channel, len(self.servos)))
 
     def battery_voltage(self):
-        raw = self.battery_adc.read()
-        return float(raw)
+        raw = self.battery_adc.read_voltage()
+        return float(raw * 3)

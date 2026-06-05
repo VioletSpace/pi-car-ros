@@ -107,8 +107,13 @@ class RobotHatNode(Node):
         self.hw.set_motor_speeds(msg.data, msg.data)
 
     def publish_battery(self):
+        volt = self.hw.battery_voltage()
+        perc = min(1.0, volt / 8.4)
         battery = BatteryState()
-        battery.voltage = self.hw.battery_voltage()
+        battery.voltage = volt
+        battery.charge = 6.24 * perc
+        battery.design_capacity = 6.24
+        battery.percentage = perc
 
         self.battery_pub.publish(battery)
 
