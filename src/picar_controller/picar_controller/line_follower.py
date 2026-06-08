@@ -85,7 +85,7 @@ class LineFollower(Node):
         Grayscale data is a mono16 image with 3 pixels from 0-65535. 0 means black, 65535 means
         white. Index 0 left, 1 middle, 2 right.
         """
-        self.last_image_time = self.get_clock().now()
+        self.last_gs_time = self.get_clock().now()
         if self.estopped or not self.active:
             return
         data = msg.data
