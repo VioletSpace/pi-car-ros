@@ -22,7 +22,7 @@ class LineFollower(Node):
         self.hist_l = self.get_parameter("direction_history_length").value
 
         # Variables
-        self.active = False
+        self.enabled = False
         self.estopped = False
         self.dirs = [0.0 for _ in range(0, self.hist_l)]
 
@@ -86,7 +86,7 @@ class LineFollower(Node):
         white. Index 0 left, 1 middle, 2 right.
         """
         self.last_gs_time = self.get_clock().now()
-        if self.estopped or not self.active:
+        if self.estopped or not self.enabled:
             return
         data = msg.data
         data = [
