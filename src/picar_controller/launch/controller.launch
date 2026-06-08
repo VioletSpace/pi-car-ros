@@ -3,4 +3,7 @@
   <node pkg="picar_controller" exec="state_publisher" name="state_publisher_node" respawn="true">
     <param from="$(find-pkg-share picar_controller)/config/controller.yaml" />
   </node>
+  <node pkg="picar_controller" exec="line_follower" name="line_follower_node" respawn="true">
+    <param from="$(find-pkg-share picar_controller)/config/controller.yaml" />
+  </node>
 </launch>

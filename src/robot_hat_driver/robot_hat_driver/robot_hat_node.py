@@ -40,7 +40,7 @@ class RobotHatNode(Node):
         self.declare_parameter("ultrasonic_pins", ["-1"])
         self.declare_parameter("grayscale_sensor", False)
         self.declare_parameter("grayscale_pins", ["-1"])
-        self.declare_parameter("grayscale_calibration", [1475, 1464, 1445, 506, 395, 335])
+        self.declare_parameter("grayscale_calibration", [1495, 1481, 1457, 1429, 1378, 1067])
         params = {
             "mmaxpercent": self.get_parameter("max_motor_percent").value,
             "lmid": self.get_parameter('motor_left_id').value,

@@ -26,7 +26,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'state_publisher = picar_controller.state_publisher:main'
+            'state_publisher = picar_controller.state_publisher:main',
+            'line_follower = picar_controller.line_follower:main'
         ],
     },
 )

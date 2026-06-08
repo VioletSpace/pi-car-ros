@@ -10,3 +10,4 @@ robot_hat_node:
     ultrasonic_pins: ["D2", "D3"]
     grayscale_sensor: True
     grayscale_pins: ["A0", "A1", "A2"]
+    grayscale_calibration: [1495, 1481, 1457, 1429, 1378, 1067]
