@@ -40,19 +40,19 @@ class RobotHatNode(Node):
         self.declare_parameter("ultrasonic_pins", ["-1"])
         self.declare_parameter("grayscale_sensor", False)
         self.declare_parameter("grayscale_pins", ["-1"])
-        self.declare_parameter("grayscale_calibration", [1500, 1500, 1500, 1300, 1300, 1300])
+        self.declare_parameter("grayscale_calibration", [1475, 1464, 1445, 506, 395, 335])
         params = {
-            "mmaxpercent": self.get_parameter("max_motor_percent").get_parameter_value().double_value,
-            "lmid": self.get_parameter('motor_left_id').get_parameter_value().integer_value,
-            "rmid": self.get_parameter('motor_right_id').get_parameter_value().integer_value,
-            "lmrev": self.get_parameter('motor_left_reversed').get_parameter_value().bool_value,
-            "rmrev": self.get_parameter('motor_right_reversed').get_parameter_value().bool_value,
-            "servo_channels": self.get_parameter('servo_channels').get_parameter_value().string_array_value,
-            "us_s": self.get_parameter('ultrasonic_sensor').get_parameter_value().bool_value,
-            "us_pins": self.get_parameter('ultrasonic_pins').get_parameter_value().string_array_value,
-            "gs_s": self.get_parameter('grayscale_sensor').get_parameter_value().bool_value,
-            "gs_pins": self.get_parameter('grayscale_pins').get_parameter_value().string_array_value,
-            "gs_cal": self.get_parameter('grayscale_calibration').get_parameter_value().integer_array_value
+            "mmaxpercent": self.get_parameter("max_motor_percent").value,
+            "lmid": self.get_parameter('motor_left_id').value,
+            "rmid": self.get_parameter('motor_right_id').value,
+            "lmrev": self.get_parameter('motor_left_reversed').value,
+            "rmrev": self.get_parameter('motor_right_reversed').value,
+            "servo_channels": self.get_parameter('servo_channels').value,
+            "us_s": self.get_parameter('ultrasonic_sensor').value,
+            "us_pins": self.get_parameter('ultrasonic_pins').value,
+            "gs_s": self.get_parameter('grayscale_sensor').value,
+            "gs_pins": self.get_parameter('grayscale_pins').value,
+            "gs_cal": self.get_parameter('grayscale_calibration').value
         }
         self.get_logger().info(
             'Starting Robot Hat Driver with max_motor_percent: %f, motor_left_id: %d, motor_right_id: %d, motor_left_reversed: %r, motor_right_reversed: %r'
@@ -172,6 +172,12 @@ class RobotHatNode(Node):
         if not self.sensors_active:
             return
         data = self.hw.grayscale.read()
+        cal = self.get_parameter('grayscale_calibration').value
+        data = [
+            max(0, min(65535, round((data[0]-cal[3])/(cal[0]-cal[3])*65535))),
+            max(0, min(65535, round((data[1]-cal[4])/(cal[1]-cal[4])*65535))),
+            max(0, min(65535, round((data[2]-cal[5])/(cal[2]-cal[5])*65535)))
+        ]
         msg = Image()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'grayscale_sensor'
@@ -216,6 +222,7 @@ class RobotHatNode(Node):
             self.hw.led(True)
             time.sleep(0.1)
             self.hw.led(False)
+            self.get_logger().info("Grayscale sensor calibrated with {}.".format(cal))
             response.success = True
             response.message = "Grayscale sensor calibrated with {}.".format(cal)
         
