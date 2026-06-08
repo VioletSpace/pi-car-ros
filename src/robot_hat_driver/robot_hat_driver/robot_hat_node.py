@@ -20,7 +20,7 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import BatteryState, Image, Range
-from std_msgs.msg import Bool, Float64, Float64MultiArray
+from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
 from std_srvs.srv import Trigger
 from .hardware import RobotHatHardware
 
@@ -107,6 +107,10 @@ class RobotHatNode(Node):
             10
         )
         self.timer = self.create_timer(0.01, self.publish_servo_angles)
+
+        self.user_button_pub = self.create_publisher(Empty, "user_button", 10)
+        self.usr_button_timer = self.create_timer(0.05, self.publish_user_button)
+
         self.get_logger().info('Node ready')
 
     def led_callback(self, msg: Bool):
@@ -189,6 +193,11 @@ class RobotHatNode(Node):
         msg.data = struct.pack('<3H', *data)
         
         self.gs_pub.publish(msg)
+
+    def publish_user_button(self):
+        if self.hw.button_pressed():
+            self.get_logger().info("User button pressed.")
+            self.user_button_pub.publish(Empty())
 
     def cal_gs_callback(self, request, response):
         if not self.sensors_active:

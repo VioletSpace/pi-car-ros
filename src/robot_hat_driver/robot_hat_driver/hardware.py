@@ -29,6 +29,8 @@ class RobotHatHardware:
         self.battery_adc = ADC("A4")
         self._led_active = False
         self._led = Pin('LED')
+        self._button = Pin('USER', mode=Pin.IN)
+        self._button_pressed = False
 
         if params['us_s']:
             self.ultrasonic = Ultrasonic(Pin(params["us_pins"][0]), Pin(params["us_pins"][1], mode=Pin.IN, pull=Pin.PULL_DOWN))
@@ -66,3 +68,9 @@ class RobotHatHardware:
     def battery_voltage(self):
         raw = self.battery_adc.read_voltage()
         return float(raw * 3)
+    
+    def button_pressed(self):
+        cpressed = self._button.value() == 1
+        res = self._button_pressed and not cpressed
+        self._button_pressed = cpressed
+        return res

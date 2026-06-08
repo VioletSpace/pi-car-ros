@@ -6,3 +6,4 @@ line_follower_node:
   ros__parameters:
     max_steer_angle: 30.0
     line_inverted: True
+    button_toggle: True

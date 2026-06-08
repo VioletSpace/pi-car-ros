@@ -3,7 +3,7 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Bool, Float64, Float64MultiArray
+from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
 from std_srvs.srv import SetBool
 
 
@@ -16,10 +16,12 @@ class LineFollower(Node):
         self.declare_parameter("max_steer_angle", 15.0)
         self.declare_parameter("line_inverted", False)
         self.declare_parameter("direction_history_length", 5)
+        self.declare_parameter("button_toggle", False)
         self.timeout_sec = self.get_parameter("timeout_sec").value
         self.k = self.get_parameter("max_steer_angle").value
         self.line_inv = self.get_parameter("line_inverted").value
         self.hist_l = self.get_parameter("direction_history_length").value
+        self.btn = self.get_parameter("button_toggle").value
 
         # Variables
         self.enabled = False
@@ -34,7 +36,7 @@ class LineFollower(Node):
         self.led_pub = self.create_publisher(Bool, "robot_hat_led", 10)
 
         # Enable/Disable service
-        self.line_srv = self.create_service(SetBool, 'follow_line', self.enable_callback)
+        self.line_srv = self.create_service(SetBool, 'follow_line', self.enable_srv_callback)
 
         # Timeout watchdog for Grayscale input
         self.last_gs_time = self.get_clock().now()
@@ -42,6 +44,8 @@ class LineFollower(Node):
 
         # Grayscale subscriber
         self.gs_sub = self.create_subscription(Image, "grayscale", self.follow_callback, 10)
+        if self.btn:
+            self.btn_sub = self.create_subscription(Empty, "user_button", self.enable_trig_callback, 10)
         
         self.get_logger().info("{0} started.".format(self.get_name()))
 
@@ -65,19 +69,29 @@ class LineFollower(Node):
                 self.get_logger().info("Grayscale input received, resuming.")
             self.estopped = False
     
-    def enable_callback(self, request, response):
+    def enable_srv_callback(self, request, response):
         """
         Service to enable/disable the line following. Disabling stops vehicle.
         """
-        self.enabled = request.data
+        self.enable(request.data)
+        response.success = True
+        return response
+    
+    def enable_trig_callback(self, msg):
+        """
+        Callback to trigger the line following. Disabling stops vehicle.
+        """
+        self.enable(not self.enabled)
+        
+    def enable(self, state):
+        self.enabled = state
         if self.enabled:
             self.get_logger().info("Line following enabled.")
         else:
             self.publish_cmd(0.0, 0.0)
             self.get_logger().info("Line following disabled.")
-        response.success = True
-        return response
-        
+
+
     def follow_callback(self, msg: Image):
         """
         On receiving data from the grayscale photodiodes, computes new course for vehicle and
