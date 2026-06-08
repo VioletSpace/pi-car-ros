@@ -27,6 +27,7 @@ class LineFollower(Node):
         self.enabled = False
         self.estopped = False
         self.dirs = [0.0 for _ in range(0, self.hist_l)]
+        self.hist_dir = 0.0
         self.recovering = False
         self.line_hist = [True for _ in range(0, self.hist_l)]
 
