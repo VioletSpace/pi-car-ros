@@ -212,7 +212,7 @@ class RobotHatNode(Node):
                 rclpy.Parameter.Type.INTEGER_ARRAY,
                 cal
             )
-            self.set_parameter([gs_cal_par])
+            self.set_parameters([gs_cal_par])
             self.hw.led(True)
             time.sleep(0.1)
             self.hw.led(False)
