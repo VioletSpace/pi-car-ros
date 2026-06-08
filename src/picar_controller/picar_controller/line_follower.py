@@ -116,10 +116,7 @@ class LineFollower(Node):
 
         # Line present? If not, signal via LED and stop
         avgd = sum(data) / 3
-        line_present = False
-        for d in data:
-            if abs(d - avgd) > 4000:
-                line_present = True
+        line_present = max(data) - min(data) > 8192
         self.line_hist.pop(0)
         self.line_hist.append(line_present)
         if not line_present: # We have not found a line
