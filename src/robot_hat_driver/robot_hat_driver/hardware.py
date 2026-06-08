@@ -51,13 +51,8 @@ class RobotHatHardware:
             self._led.off()
 
     def set_motor_speeds(self, left: float, right: float):
-        mp = self.params["mmaxpercent"]
-        if left < -mp or left > mp or right < -mp or right > mp:
-            self.logger.warn("Motor speed out of range: l:%f r:%f /%f" % (left, right, mp))
-        lefts = max(-mp, min(mp, left))
-        rights = max(-mp, min(mp, right))
-        self.motors.left.speed(lefts)
-        self.motors.right.speed(rights)
+        self.motors.left.speed(left)
+        self.motors.right.speed(right)
 
     def stop(self):
         self.set_motor_speeds(0.0, 0.0)

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import struct
+import time
 
 import rclpy
 from rclpy.executors import ExternalShutdownException
@@ -20,7 +21,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import BatteryState, Image, Range
 from std_msgs.msg import Bool, Float64, Float64MultiArray
-
+from std_srvs.srv import Trigger
 from .hardware import RobotHatHardware
 
 
@@ -39,6 +40,7 @@ class RobotHatNode(Node):
         self.declare_parameter("ultrasonic_pins", ["-1"])
         self.declare_parameter("grayscale_sensor", False)
         self.declare_parameter("grayscale_pins", ["-1"])
+        self.declare_parameter("grayscale_calibration", [1500, 1500, 1500, 1300, 1300, 1300])
         params = {
             "mmaxpercent": self.get_parameter("max_motor_percent").get_parameter_value().double_value,
             "lmid": self.get_parameter('motor_left_id').get_parameter_value().integer_value,
@@ -49,7 +51,8 @@ class RobotHatNode(Node):
             "us_s": self.get_parameter('ultrasonic_sensor').get_parameter_value().bool_value,
             "us_pins": self.get_parameter('ultrasonic_pins').get_parameter_value().string_array_value,
             "gs_s": self.get_parameter('grayscale_sensor').get_parameter_value().bool_value,
-            "gs_pins": self.get_parameter('grayscale_pins').get_parameter_value().string_array_value
+            "gs_pins": self.get_parameter('grayscale_pins').get_parameter_value().string_array_value,
+            "gs_cal": self.get_parameter('grayscale_calibration').get_parameter_value().integer_array_value
         }
         self.get_logger().info(
             'Starting Robot Hat Driver with max_motor_percent: %f, motor_left_id: %d, motor_right_id: %d, motor_left_reversed: %r, motor_right_reversed: %r'
@@ -96,6 +99,7 @@ class RobotHatNode(Node):
         if params["gs_s"]:
             self.gs_pub = self.create_publisher(Image, "grayscale", 10)
             self.timer = self.create_timer(0.1, self.publish_grayscale)
+            self.gs_cal_srv = self.create_service(Trigger, 'calibrate_grayscale', self.cal_gs_callback)
 
         self.servo_angle_pub = self.create_publisher(
             Float64MultiArray,
@@ -123,7 +127,14 @@ class RobotHatNode(Node):
             self.hw.set_servo(i, angle)
 
     def motor_callback(self, msg: Float64):
-        self.hw.set_motor_speeds(msg.data, msg.data)
+        left = msg.data
+        right = msg.data
+        mp = self.get_parameter("max_motor_percent").get_parameter_value().double_value
+        if left < -mp or left > mp or right < -mp or right > mp:
+            self.get_logger().warn("Motor speed out of range: l:%f r:%f /%f" % (left, right, mp))
+        lefts = max(-mp, min(mp, left))
+        rights = max(-mp, min(mp, right))
+        self.hw.set_motor_speeds(lefts, rights)
 
     def publish_battery(self):
         volt = self.hw.battery_voltage()
@@ -173,6 +184,42 @@ class RobotHatNode(Node):
         
         self.gs_pub.publish(msg)
 
+    def cal_gs_callback(self, request, response):
+        if not self.sensors_active:
+            response.success = False
+            response.message = "Sensors are not active. Calibration unsuccessful."
+        elif not self.get_parameter('grayscale_sensor').value:
+            response.success = False
+            response.message = "Grayscale sensor not present. Calibration unsuccessful."
+        else:
+            self.hw.led(True)
+            time.sleep(0.1)
+            self.hw.led(False)
+            high = []
+            for _ in range(50):
+                high.append(self.hw.grayscale.read())
+                time.sleep(0.01)
+            self.hw.led(True)
+            time.sleep(5)
+            self.hw.led(False)
+            low = []
+            for _ in range(50):
+                low.append(self.hw.grayscale.read())
+                time.sleep(0.01)
+            cal = [round(sum(col) / len(col)) for col in zip(*high)] + [round(sum(col) / len(col)) for col in zip(*low)]
+            gs_cal_par = rclpy.parameter.Parameter(
+                'grayscale_calibration',
+                rclpy.Parameter.Type.INTEGER_ARRAY,
+                cal
+            )
+            self.set_parameter([gs_cal_par])
+            self.hw.led(True)
+            time.sleep(0.1)
+            self.hw.led(False)
+            response.success = True
+            response.message = "Grayscale sensor calibrated with {}.".format(cal)
+        
+        return response
 
     def destroy_node(self):
         self.hw.stop()
