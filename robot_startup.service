@@ -11,19 +11,17 @@ Type=simple
 User=ex123
 WorkingDirectory=/home/ex123
 # Wait for hardware to settle before starting ROS
-ExecStartPre=/bin/sleep 10 # hope and pray that GPIO is ready at this point
+ExecStartPre=/bin/sleep 10
+# hope and pray that GPIO is ready at this point
 # ROS 2 environment + launch
 ExecStart=/bin/bash -c 'source /opt/ros/kilted/setup.bash && \
 source /home/ex123/ros2_ws/install/setup.bash && \
 exec ros2 launch picar_startup bringup.launch'
 
 # Auto-restart
-Restart=always
-RestartSec=2
+Restart=on-failure
+RestartSec=5
 StartLimitIntervalSec=0
-# Keep logs persistent
-StandardOutput=append:/home/ex123/robot.log
-StandardError=append:/home/ex123/robot_error.log
 # Safety: give hardware time to release
 KillSignal=SIGINT
 TimeoutStopSec=10
