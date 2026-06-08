@@ -29,7 +29,7 @@ class RobotHatHardware:
         self.battery_adc = ADC("A4")
         self._led_active = False
         self._led = Pin('LED')
-        self._button = Pin('USER', mode=Pin.IN)
+        self._button = Pin('USER', mode=Pin.IN, pull=Pin.PULL_UP, active_state=True)
         self._button_pressed = False
 
         if params['us_s']:
