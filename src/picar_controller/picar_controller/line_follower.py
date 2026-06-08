@@ -4,7 +4,7 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
-from std_srvs.srv import SetBool
+from std_srvs.srv import SetBool, Trigger
 
 
 class LineFollower(Node):
@@ -47,7 +47,11 @@ class LineFollower(Node):
         # Grayscale subscriber
         self.gs_sub = self.create_subscription(Image, "grayscale", self.follow_callback, 10)
         if self.btn:
-            self.btn_sub = self.create_subscription(Empty, "user_button", self.enable_trig_callback, 10)
+            self.usr_btn_sub = self.create_subscription(Empty, "usr_button", self.enable_trig_callback, 10)
+            self.rst_btn_sub = self.create_subscription(Empty, "rst_button", self.cal_callback, 10)
+
+        # Grayscale calibration client
+        self.cal_client = self.create_client(Trigger, 'calibrate_grayscale')
         
         self.get_logger().info("{0} started.".format(self.get_name()))
 
@@ -91,8 +95,11 @@ class LineFollower(Node):
             self.get_logger().info("Line following enabled.")
         else:
             self.publish_cmd(0.0, 0.0)
+            self.recovering = False
+            ledmsg = Bool()
+            ledmsg.data = False
+            self.led_pub.publish(ledmsg)
             self.get_logger().info("Line following disabled.")
-
 
     def follow_callback(self, msg: Image):
         """
@@ -151,6 +158,18 @@ class LineFollower(Node):
         servo_angle = self.hist_dir * -self.k
         self.publish_cmd(30.0, servo_angle)
 
+    def cal_callback(self, msg):
+        self.get_logger().info("Requesting calibration.")
+        req = Trigger.Request()
+        future = self.cal_client.call_async(req)
+        future.add_done_callback(self.cal_response_callback)
+
+    def cal_response_callback(self, future):
+        try:
+            response = future.result()
+            self.get_logger().info(f"Service result: success={response.success}, message={response.message}")
+        except Exception as e:
+            self.get_logger().error(f"Service call failed: {str(e)}")
 
     def publish_cmd(self, motor_speed, servo_angle):
         """publishing helper"""

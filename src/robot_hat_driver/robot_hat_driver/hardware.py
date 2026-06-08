@@ -29,8 +29,10 @@ class RobotHatHardware:
         self.battery_adc = ADC("A4")
         self._led_active = False
         self._led = Pin('LED')
-        self._button = Pin('USER', mode=Pin.IN, pull=Pin.PULL_UP, active_state=True)
-        self._button_pressed = False
+        self._usr_btn = Pin('USER', mode=Pin.IN, pull=Pin.PULL_UP, active_state=True)
+        self._usr_btn_pressed = False
+        self._rst_btn = Pin('RST', mode=Pin.IN, pull=Pin.PULL_UP, active_state=True)
+        self._rst_btn_pressed = False
 
         if params['us_s']:
             self.ultrasonic = Ultrasonic(Pin(params["us_pins"][0]), Pin(params["us_pins"][1], mode=Pin.IN, pull=Pin.PULL_DOWN))
@@ -69,8 +71,14 @@ class RobotHatHardware:
         raw = self.battery_adc.read_voltage()
         return float(raw * 3)
     
-    def button_pressed(self):
-        cpressed = self._button.value() == 1
-        res = self._button_pressed and not cpressed
-        self._button_pressed = cpressed
+    def usr_button_pressed(self):
+        cpressed = self._usr_btn.value() == 1
+        res = self._usr_btn_pressed and not cpressed
+        self._usr_btn_pressed = cpressed
+        return res
+    
+    def rst_button_pressed(self):
+        cpressed = self._rst_btn.value() == 1
+        res = self._rst_btn_pressed and not cpressed
+        self._rst_btn_pressed = cpressed
         return res
