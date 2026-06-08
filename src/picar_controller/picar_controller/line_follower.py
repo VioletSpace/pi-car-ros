@@ -3,7 +3,7 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Float64, Float64MultiArray
+from std_msgs.msg import Bool, Float64, Float64MultiArray
 from std_srvs.srv import SetBool
 
 
@@ -25,11 +25,13 @@ class LineFollower(Node):
         self.enabled = False
         self.estopped = False
         self.dirs = [0.0 for _ in range(0, self.hist_l)]
+        self.recovering = False
 
 
         # Command publishers
         self.motor_pub = self.create_publisher(Float64, "motor_speed", 10)
         self.servo_pub = self.create_publisher(Float64MultiArray, "servo_target_angles", 10)
+        self.led_pub = self.create_publisher(Bool, "robot_hat_led", 10)
 
         # Enable/Disable service
         self.line_srv = self.create_service(SetBool, 'follow_line', self.enable_callback)
@@ -60,7 +62,7 @@ class LineFollower(Node):
             self.publish_cmd(0.0, 0.0)
         else:
             if self.estopped:
-                self.get_logger().info("Grayscale input, line following resumed.")
+                self.get_logger().info("Grayscale input received, resuming.")
             self.estopped = False
     
     def enable_callback(self, request, response):
@@ -96,16 +98,40 @@ class LineFollower(Node):
         ]
         if self.get_parameter("line_inverted").value:
             data = [65535-x for x in data]
+
+        # Line present? If not, signal via LED and stop
+        avgd = sum(data) / 3
+        line_present = False
+        for d in data:
+            if abs(d - avgd) > 8000:
+                line_present = True
+        if not line_present:
+            if not self.recovering:
+                self.get_logger().warn("Line lost. Recover.")
+                ledmsg = Bool()
+                ledmsg.data = True
+                self.led_pub().publish(ledmsg)
+            self.recovering = True
+            self.publish_cmd(0.0, self.hist_dir * -self.k)
+            return
+        else:
+            if self.recovering:
+                self.get_logger().info("Recovered.")
+                ledmsg = Bool()
+                ledmsg.data = False
+                self.led_pub().publish(ledmsg)
+            self.recovering = False
+        
         
         # -1 left - 0 forward - 1 right
         dir = max(-1.0, min(1.0, (data[2] - data[0]) / (data[0] + data[1] + data[2] + 1e-6)))
-        # avg of last three directions to reduce noise
+        # avg of last direction_history_length directions to reduce noise
         self.dirs.pop(0)
         self.dirs.append(dir)
         self.hist_dir = sum(self.dirs) / self.hist_l
 
-        servo_angle = self.hist_dir * self.k
-        self.publish_cmd(0.0, servo_angle)
+        servo_angle = self.hist_dir * -self.k
+        self.publish_cmd(80.0, servo_angle)
 
 
     def publish_cmd(self, motor_speed, servo_angle):
