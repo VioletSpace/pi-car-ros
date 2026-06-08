@@ -98,7 +98,7 @@ class LineFollower(Node):
             data = [65535-x for x in data]
         
         # -1 left - 0 forward - 1 right
-        dir = max(-1.0, min(1.0, (data[3] - data[0]) / (data[0] + data[1] + data[2] + 1e-6)))
+        dir = max(-1.0, min(1.0, (data[2] - data[0]) / (data[0] + data[1] + data[2] + 1e-6)))
         # avg of last three directions to reduce noise
         self.dirs.pop(0)
         self.dirs.append(dir)
