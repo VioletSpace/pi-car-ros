@@ -28,6 +28,7 @@ class LineFollower(Node):
         self.estopped = False
         self.dirs = [0.0 for _ in range(0, self.hist_l)]
         self.recovering = False
+        self.line_hist = [True for _ in range(0, self.hist_l)]
 
 
         # Command publishers
@@ -119,22 +120,27 @@ class LineFollower(Node):
         for d in data:
             if abs(d - avgd) > 4000:
                 line_present = True
-        if not line_present:
-            if not self.recovering:
+        self.line_hist.pop(0)
+        self.line_hist.append(line_present)
+        if not line_present: # We have not found a line
+            if not self.recovering: # We are not already recovering, commence
                 self.get_logger().warn("Line lost. Recover.")
                 ledmsg = Bool()
                 ledmsg.data = True
                 self.led_pub.publish(ledmsg)
-            self.recovering = True
+                self.recovering = True
             self.publish_cmd(0.0, self.hist_dir * -self.k)
             return
-        else:
-            if self.recovering:
+        elif self.recovering: # We have found a line but are still recovering
+            self.recovering = all(self.line_hist)
+            if not self.recovering: # The last x checks where successful
                 self.get_logger().info("Recovered.")
                 ledmsg = Bool()
                 ledmsg.data = False
                 self.led_pub.publish(ledmsg)
-            self.recovering = False
+            else: # not successful, keep trying
+                return
+            
         
         
         # -1 left - 0 forward - 1 right
