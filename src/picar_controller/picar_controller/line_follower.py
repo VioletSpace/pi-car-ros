@@ -103,14 +103,14 @@ class LineFollower(Node):
         avgd = sum(data) / 3
         line_present = False
         for d in data:
-            if abs(d - avgd) > 8000:
+            if abs(d - avgd) > 4000:
                 line_present = True
         if not line_present:
             if not self.recovering:
                 self.get_logger().warn("Line lost. Recover.")
                 ledmsg = Bool()
                 ledmsg.data = True
-                self.led_pub().publish(ledmsg)
+                self.led_pub.publish(ledmsg)
             self.recovering = True
             self.publish_cmd(0.0, self.hist_dir * -self.k)
             return
@@ -119,7 +119,7 @@ class LineFollower(Node):
                 self.get_logger().info("Recovered.")
                 ledmsg = Bool()
                 ledmsg.data = False
-                self.led_pub().publish(ledmsg)
+                self.led_pub.publish(ledmsg)
             self.recovering = False
         
         
@@ -131,7 +131,7 @@ class LineFollower(Node):
         self.hist_dir = sum(self.dirs) / self.hist_l
 
         servo_angle = self.hist_dir * -self.k
-        self.publish_cmd(80.0, servo_angle)
+        self.publish_cmd(30.0, servo_angle)
 
 
     def publish_cmd(self, motor_speed, servo_angle):
