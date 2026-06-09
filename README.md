@@ -73,7 +73,7 @@ the `line_follower` node that automatically drives along a line using the graysc
 Currently the only job of the `state_publisher` is to update the steering servo angles on the
 transform tree.
 - Publishes: `JointState /joint_states`
-- Broadcasts: 'TransformBroadcaster'
+- Broadcasts: `TransformBroadcaster`
 - Subscribes: `Float64MultiArray /servo_angles`
 
 The line follower node is more involved. It starts by default but is in a disabled state that must
@@ -84,17 +84,17 @@ enabled, the node will process sensor data from the grayscale sensor, attempt li
 and send new motor speed and steering commands. If no line is found (line not present, insufficient
 contrast, broken calibration…) the node will signal this by turning on the indicator LED on the HAT.
 - Publishes: 
-    - `Float64 /motor_speed`
-    - `Float64MultiArray /servo_target_angles`
-    - `Bool /robot_hat_led`
+    - `std_msgs/msg/Float64 /motor_speed`
+    - `std_msgs/msg/Float64MultiArray /servo_target_angles`
+    - `std_msgs/msg/Bool /robot_hat_led`
 - Subscribes:
-    - `Image /grayscale` (3x1 mono16)
-    - `Empty /usr_button` (if parameter `button_toggle: True`)
-    - `Empty /rst_button` (if parameter `button_toggle: True`)
+    - `sensor_msgs/msg/Image /grayscale` (3x1 mono16)
+    - `std_msgs/msg/Empty /usr_button` (if parameter `button_toggle: True`)
+    - `std_msgs/msg/Empty /rst_button` (if parameter `button_toggle: True`)
 - Services:
-    - `SetBool /follow_line` (enable/disable line following)
+    - `std_srvs/srvs/SetBool /follow_line` (enable/disable line following)
 - Clients:
-    - `Trigger /calibrate_grayscale` (triggers grayscale calibration sequence)
+    - `std_srvs/srvs/Trigger /calibrate_grayscale` (triggers grayscale calibration sequence)
 
 Both nodes in the picar_controller package take in parameters from the config file. Here with
 defaults:
@@ -115,18 +115,18 @@ line_follower:
 This package interfaces with the Robot HAT hardware and exposes relevant topics. Some code has been
 adapted from [sunfounder/robot-hat](https://github.com/sunfounder/robot-hat). It contains the `rhdriver` node that manages all hardware interaction.
 - Publishes:
-    - `BatteryState /battery_state`
-    - `Range /sonar_range` (if sonar sensor configured)
-    - `Image /grayscale`   (if grayscale sensor configured)
-    - `Float64MultiArray /servo_angles`
-    - `Empty /usr_button` (publishes Empty when button released)
-    - `Empty /rst_button` (publishes Empty when button released)
+    - `sensor_msgs/msg/BatteryState /battery_state`
+    - `sensor_msgs/msg/Range /sonar_range` (if sonar sensor configured)
+    - `sensor_msgs/msg/Image /grayscale`   (if grayscale sensor configured)
+    - `std_msgs/msg/Float64MultiArray /servo_angles`
+    - `std_msgs/msg/Empty /usr_button` (publishes Empty when button released)
+    - `std_msgs/msg/Empty /rst_button` (publishes Empty when button released)
 - Subscribes:
-    - `Bool /robot_hat_led` (control indicator LED)
-    - `Float64MultiArray /servo_target_angles` (control servos)
-    - `Float64 /motor_speed` (control motor_speed)
+    - `std_msgs/msg/Bool /robot_hat_led` (control indicator LED)
+    - `std_msgs/msg/Float64MultiArray /servo_target_angles` (control servos)
+    - `std_msgs/msg/Float64 /motor_speed` (control motor_speed)
 - Services:
-    - `Trigger /calibrate_grayscale` (if grayscale sensor configured)
+    - `std_srvs/srvs/Trigger /calibrate_grayscale` (if grayscale sensor configured)
 
 Parameters loaded from config file with default values:
 ```yaml
