@@ -8,7 +8,9 @@ Wants=network-online.target systemd-udev-settle.service
 
 [Service]
 Type=simple
-User=ex123
+# service needs to run as root. Access to gpiochip0 is granted to the user at login, so using "ex123"
+# would error until the user has manually logged in.
+User=root
 WorkingDirectory=/home/ex123
 # Wait for hardware to settle before starting ROS
 ExecStartPre=/bin/sleep 10
