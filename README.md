@@ -1,4 +1,5 @@
 # PiCar-ROS
+ROS 2 Kilted control stack for a Raspberry Pi 4 robot car. 
 
 This repository is made for the SunFounder PiCar-X but could be adapted to other small robots using
 the SunFounder Robot HAT. It provides a fully implemented control stack using ROS 2 Kilted through
