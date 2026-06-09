@@ -92,9 +92,9 @@ contrast, broken calibration…) the node will signal this by turning on the ind
     - `std_msgs/msg/Empty /usr_button` (if parameter `button_toggle: True`)
     - `std_msgs/msg/Empty /rst_button` (if parameter `button_toggle: True`)
 - Services:
-    - `std_srvs/srvs/SetBool /follow_line` (enable/disable line following)
+    - `std_srvs/srv/SetBool /follow_line` (enable/disable line following)
 - Clients:
-    - `std_srvs/srvs/Trigger /calibrate_grayscale` (triggers grayscale calibration sequence)
+    - `std_srvs/srv/Trigger /calibrate_grayscale` (triggers grayscale calibration sequence)
 
 Both nodes in the picar_controller package take in parameters from the config file. Here with
 defaults:
@@ -126,7 +126,7 @@ adapted from [sunfounder/robot-hat](https://github.com/sunfounder/robot-hat). It
     - `std_msgs/msg/Float64MultiArray /servo_target_angles` (control servos)
     - `std_msgs/msg/Float64 /motor_speed` (control motor_speed)
 - Services:
-    - `std_srvs/srvs/Trigger /calibrate_grayscale` (if grayscale sensor configured)
+    - `std_srvs/srv/Trigger /calibrate_grayscale` (if grayscale sensor configured)
 
 Parameters loaded from config file with default values:
 ```yaml
