@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+  <!-- include launch file for robot_hat_driver - starts hardware interface -->
   <include file="$(find-pkg-share robot_hat_driver)/launch/robot_hat.launch" />
 
+  <!-- start ROS built-in robot_state_publisher -->
   <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher" output="screen" respawn="true">
+    <!-- Pass the robot description as parameter. Xacro needs to be run on the file beforehand
+    to expand all macros -->
     <param name="robot_description" value="$(command 'xacro $(find-pkg-share picar_description)/urdf/picar.urdf.xacro')" />
   </node>
 
+  <!--- include launch file for picar_controller - starts state_publisher and line_follower -->
   <include file="$(find-pkg-share picar_controller)/launch/controller.launch" />
 </launch>
