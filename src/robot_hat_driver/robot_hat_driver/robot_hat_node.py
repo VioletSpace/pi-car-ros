@@ -84,7 +84,7 @@ class RobotHatNode(Node):
             self.us_timer = self.create_timer(0.5, self.publish_sonar)
         if params["gs_s"]:
             self.gs_pub = self.create_publisher(Image, "grayscale", 10)
-            self.gs_timer = self.create_timer(0.1, self.publish_grayscale)
+            self.gs_timer = self.create_timer(0.05, self.publish_grayscale)
             self.gs_cal_srv = self.create_service(Trigger, 'calibrate_grayscale', self.cal_gs_callback)
 
         self.get_logger().info('Node ready')

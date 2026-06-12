@@ -15,21 +15,23 @@ class LineFollower(Node):
         self.declare_parameter("timeout_sec", 0.5)
         self.declare_parameter("max_steer_angle", 15.0)
         self.declare_parameter("line_inverted", False)
-        self.declare_parameter("direction_history_length", 5)
+        self.declare_parameter("history_length", 5)
         self.declare_parameter("button_toggle", False)
         self.timeout_sec = self.get_parameter("timeout_sec").value
         self.k = self.get_parameter("max_steer_angle").value
         self.line_inv = self.get_parameter("line_inverted").value
-        self.hist_l = self.get_parameter("direction_history_length").value
+        self.hist_l = self.get_parameter("history_length").value
         self.btn = self.get_parameter("button_toggle").value
 
         # Variables
         self.enabled = False
         self.estopped = False
-        self.dirs = [0.0 for _ in range(0, self.hist_l)]
         self.hist_dir = 0.0
-        self.recovering = False
         self.line_hist = [True for _ in range(0, self.hist_l)]
+        # PID
+        self.pr_err = 0.0
+        self.p = self.i = self.d = 0.0
+        self.kp, self.ki, self.kd = 1.5, 0.0, 0.5
 
 
         # Command publishers
@@ -127,36 +129,20 @@ class LineFollower(Node):
         line_present = max(data) - min(data) > 8192
         self.line_hist.pop(0)
         self.line_hist.append(line_present)
-        if not line_present: # We have not found a line
-            if not self.recovering: # We are not already recovering, commence
-                self.get_logger().warn("Line lost. Recover.")
-                ledmsg = Bool()
-                ledmsg.data = True
-                self.led_pub.publish(ledmsg)
-                self.recovering = True
-            self.publish_cmd(0.0, self.hist_dir * -self.k)
-            return
-        elif self.recovering: # We have found a line but are still recovering
-            self.recovering = all(self.line_hist)
-            if not self.recovering: # The last x checks where successful
-                self.get_logger().info("Recovered.")
-                ledmsg = Bool()
-                ledmsg.data = False
-                self.led_pub.publish(ledmsg)
-            else: # not successful, keep trying
+        if not line_present:
+            if not any(line_present):
+                self.publish_cmd(0.0, 0.0)
                 return
-            
-        
+            servo_angle = self.hist_dir * -self.k
+            self.publish_cmd(20.0, servo_angle)
+            return
         
         # -1 left - 0 forward - 1 right
-        dir = max(-1.0, min(1.0, (data[2] - data[0]) / (data[0] + data[1] + data[2] + 1e-6)))
-        # avg of last direction_history_length directions to reduce noise
-        self.dirs.pop(0)
-        self.dirs.append(dir)
-        self.hist_dir = sum(self.dirs) / self.hist_l
-
-        servo_angle = self.hist_dir * -self.k
-        self.publish_cmd(30.0, servo_angle)
+        err = max(-1.0, min(1.0, (data[2] - data[0]) / (data[0] + data[1] + data[2] + 1e-6)))
+        dir = self.pid_controller(err)
+        self.hist_dir = dir
+        servo_angle = self.dir * -self.k
+        self.publish_cmd(40.0, servo_angle)
 
     def cal_callback(self, msg):
         self.get_logger().info("Requesting calibration.")
@@ -179,6 +165,17 @@ class LineFollower(Node):
         smsg.data = [float(servo_angle)]
         self.motor_pub.publish(mmsg)
         self.servo_pub.publish(smsg)
+
+    def pid_controller(self, err):
+        self.p = err
+        self.i = self.i + err
+        self.d = err - self.pr_err
+        pv = self.kp*self.p
+        iv = self.ki*self.i
+        dv = self.kd*self.d
+        self.pr_err = err
+
+        return pv + iv + dv
 
 def main():
     try:
