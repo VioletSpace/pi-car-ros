@@ -130,7 +130,7 @@ class LineFollower(Node):
         self.line_hist.pop(0)
         self.line_hist.append(line_present)
         if not line_present:
-            if not any(line_present):
+            if not any(self.line_hist):
                 self.publish_cmd(0.0, 0.0)
                 return
             servo_angle = self.hist_dir * -self.k
