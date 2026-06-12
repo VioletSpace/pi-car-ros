@@ -141,7 +141,7 @@ class LineFollower(Node):
         err = max(-1.0, min(1.0, (data[2] - data[0]) / (data[0] + data[1] + data[2] + 1e-6)))
         dir = self.pid_controller(err)
         self.hist_dir = dir
-        servo_angle = self.dir * -self.k
+        servo_angle = dir * -self.k
         self.publish_cmd(40.0, servo_angle)
 
     def cal_callback(self, msg):
