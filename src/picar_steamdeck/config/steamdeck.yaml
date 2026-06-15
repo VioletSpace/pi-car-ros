@@ -11,11 +11,11 @@
     axis_angular:
       yaw: 0
     scale_angular:
-      yaw: 0.6
+      yaw: 1.0
     scale_angular_turbo:
-      yaw: 1.2
-    enable_button: 7
-    enable_turbo_button: 8
+      yaw: 1.0
+    enable_button: 9
+    enable_turbo_button: 10
 
 /steamdeck_joy_teleop/joy_node:
   ros__parameters:
