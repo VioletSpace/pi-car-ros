@@ -1,6 +1,6 @@
 # Steamdeck Configuration for Robot Teleoperation
 
-teleop_twist_joy:
+/steamdeck_joy_teleop/teleop_twist_joy:
   ros__parameters:
     axis_linear:
       x: 1
@@ -17,7 +17,7 @@ teleop_twist_joy:
     enable_button: 7
     enable_turbo_button: 8
 
-joy_node:
+/steamdeck_joy_teleop/joy_node:
   ros__parameters:
     deadzone: 0.05
     autorepeat_rate: 20
