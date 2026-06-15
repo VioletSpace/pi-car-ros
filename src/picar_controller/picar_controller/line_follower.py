@@ -148,7 +148,15 @@ class LineFollower(Node):
 
     def sonar_callback(self, msg: Range):
         if msg.range > msg.min_range and msg.range < msg.max_range:
-            self.obstructed = msg.range < 0.15
+            obs = msg.range < 0.15
+            if obs and not self.obstructed:
+                self.get_logger().info("Robot obstructed: Range %f" % msg.range)
+                self.obstructed = True
+            elif not obs and self.obstructed:
+                self.get_logger().info("Robot free: Range %f" % msg.range)
+                self.obstructed = False
+        else:
+            self.get_logger().warn("Received invalid range: %f not in [%f,%f]" % (msg.range, msg.min_range, msg.max_range))
 
     def cal_callback(self, msg):
         self.get_logger().info("Requesting calibration.")
