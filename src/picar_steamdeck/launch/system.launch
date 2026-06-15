@@ -6,7 +6,7 @@
     <push_ros_namespace namespace="steamdeck_joy_teleop" />
     <node pkg="joy" exec="joy_node" name="joy_node">
       <param from="$(find-pkg-share picar_steamdeck)/config/steamdeck.yaml" />
-    <node/>
+    </node>
     <node pkg="teleop_twist_joy" exec="teleop_node" name="teleop_twist_joy">
       <param from="$(find-pkg-share picar_steamdeck)/config/steamdeck.yaml" />
       <remap from="cmd_vel" to="/joy_teleop/cmd_vel" />
