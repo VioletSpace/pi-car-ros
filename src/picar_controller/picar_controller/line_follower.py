@@ -152,6 +152,7 @@ class LineFollower(Node):
             if obs and not self.obstructed:
                 self.get_logger().info("Robot obstructed: Range %f" % msg.range)
                 self.obstructed = True
+                self.publish_cmd(0.0, 0.0)
             elif not obs and self.obstructed:
                 self.get_logger().info("Robot free: Range %f" % msg.range)
                 self.obstructed = False
