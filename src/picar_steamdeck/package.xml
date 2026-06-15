@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>picar_controller</name>
+  <name>picar_steamdeck</name>
   <version>0.1.0</version>
-  <description>ROS 2 main controller for PiCar-X using Sunfounder Robot Hat V3.3</description>
-  <maintainer email="johanna.pluschke.ext@ptb.de">Johanna Pluschke</maintainer>
+  <description>Steamdeck Teleop for the PiCar</description>
+  <maintainer email="johanna.pluschke.ext@ptb.de">Johanna Freya Pluschke</maintainer>
   <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>
@@ -14,14 +14,8 @@
   <test_depend>ament_xmllint</test_depend>
   <test_depend>python3-pytest</test_depend>
 
-  <exec_depend>robot_hat_driver</exec_depend>
-  <exec_depend>picar_description</exec_depend>
-
-  <depend>sensor_msgs</depend>
-  <depend>std_msgs</depend>
-  <depend>std_srvs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>tf2_ros</depend>
+  <depend>joy</depend>
+  <depend>teleop_twist_joy</depend>
 
   <export>
     <build_type>ament_python</build_type>

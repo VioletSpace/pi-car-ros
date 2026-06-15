@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Start basic joystick interface nodes -->
+  <group>
+    <push_ros_namespace namespace="steamdeck_joy_teleop" />
+    <param from="$(find-pkg-share picar_steamdeck)/config/steamdeck.yaml" />
+    <node pkg="joy" exec="joy_node" name="joy_node"/>
+    <node pkg="teleop_twist_joy" exec="teleop_node" name="teleop_twist_joy">
+      <remap from="cmd_vel" to="/joy_teleop/cmd_vel" />
+    </node>
+  </group>
+
+  <!-- start controller handling other buttons/actions -->
+  <!--
+  <node name="steamdeck_control" pkg="picar_steamdeck" exec="steamdeck_driver" output="screen">
+    <param from="$(find-pkg-share picar_steamdeck)/config/steamdeck.yaml" />
+  </node>
+  -->
+
+</launch>
