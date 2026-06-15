@@ -7,9 +7,8 @@ distrobox enter ros2-kilted <<EOF
 source /opt/ros/kilted/setup.bash
 source /home/deck/ros2_ws/install/setup.bash
 
-export ROS_MASTER_URI=http://192.168.131.1:11311
-export ROS_HOSTNAME=192.168.131.150
-export ROS_IP=192.168.131.150
+export ROS_DOMAIN_ID=10
+export ROS_LOCALHOST_ONLY=0
 
 # Launch the ROS2 system
 ros2 launch picar_steamdeck system.launch
