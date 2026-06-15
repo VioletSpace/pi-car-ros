@@ -2,7 +2,7 @@ from math import sin, cos, pi
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, Range
 from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
 from std_srvs.srv import SetBool, Trigger
 
@@ -26,12 +26,13 @@ class LineFollower(Node):
         # Variables
         self.enabled = False
         self.estopped = False
+        self.obstructed = False
         self.hist_dir = 0.0
         self.line_hist = [True for _ in range(0, self.hist_l)]
         # PID
         self.pr_err = 0.0
         self.p = self.i = self.d = 0.0
-        self.kp, self.ki, self.kd = 1.5, 0.0, 0.5
+        self.kp, self.ki, self.kd = 1.0, 0.0, 0.7
 
 
         # Command publishers
@@ -48,6 +49,7 @@ class LineFollower(Node):
 
         # Grayscale subscriber
         self.gs_sub = self.create_subscription(Image, "grayscale", self.follow_callback, 10)
+        self.sr_sub = self.create_subscription(Range, "sonar_range", self.sonar_callback, 10)
         if self.btn:
             self.usr_btn_sub = self.create_subscription(Empty, "usr_button", self.enable_trig_callback, 10)
             self.rst_btn_sub = self.create_subscription(Empty, "rst_button", self.cal_callback, 10)
@@ -113,7 +115,7 @@ class LineFollower(Node):
         white. Index 0 left, 1 middle, 2 right.
         """
         self.last_gs_time = self.get_clock().now()
-        if self.estopped or not self.enabled:
+        if self.estopped or not self.enabled or self.obstructed:
             return
         data = msg.data
         data = [
@@ -143,6 +145,10 @@ class LineFollower(Node):
         self.hist_dir = dir
         servo_angle = dir * -self.k
         self.publish_cmd(40.0, servo_angle)
+
+    def sonar_callback(self, msg: Range):
+        if msg.range > msg.min_range and msg.range < msg.max_range:
+            self.obstructed = msg.range < 0.15
 
     def cal_callback(self, msg):
         self.get_logger().info("Requesting calibration.")
