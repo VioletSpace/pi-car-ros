@@ -42,7 +42,7 @@ class RobotHatNode(Node):
         self.declare_parameter("grayscale_sensor", False)
         self.declare_parameter("grayscale_pins", ["-1"])
         self.declare_parameter("grayscale_calibration", [1495, 1481, 1457, 1429, 1378, 1067])
-        params = {
+        self.params = {
             "mmaxpercent": self.get_parameter("max_motor_percent").value,
             "lmid": self.get_parameter('motor_left_id').value,
             "rmid": self.get_parameter('motor_right_id').value,
@@ -56,15 +56,28 @@ class RobotHatNode(Node):
             "gs_pins": self.get_parameter('grayscale_pins').value,
             "gs_cal": self.get_parameter('grayscale_calibration').value
         }
-        self.get_logger().info(
-            'Starting Robot Hat Driver with max_motor_percent: %f, motor_left_id: %d, motor_right_id: %d, motor_left_reversed: %r, motor_right_reversed: %r'
-            % (params["mmaxpercent"], params["lmid"], params["rmid"], params["lmrev"], params["rmrev"])
-            )
-        if params["mmaxpercent"] > 100.0:
-            self.get_logger().warn("max_motor_percent %f exceeds maximum of 100.0" % params["mmaxpercent"])
+        # Sanity check parameters:
+        # Motor precentage range
+        if self.params["mmaxpercent"] > 100.0 or self.params["mmaxpercent"] < 0.0:
+            self.get_logger().warn("max_motor_percent %f exceeds maximum of 100.0. Clamping." % self.params["mmaxpercent"])
+            self.params["mmaxpercent"] = max(0.0, min(100.0, self.params["mmaxpercent"]))
+        # Correct servo setup
+        lch, lcorr = len(self.params["servo_channels"]), len(self.params["servo_corr"])
+        if lch > lcorr:
+            self.get_logger().warn("Insufficient number of servo correction entries for %d servos. Filling with 0." % lch)
+            self.params["servo_corr"].extend([0.0] * (lch-lcorr))
+        # Correct sensor setup
+        if self.params["us_s"] and not len(self.params["us_pins"]) == 2:
+            self.get_logger().warn(f"Sonar sensor active but misconfigured: {len(self.params["us_pins"])} out of 2 channel entries. Deactivating.")
+            self.params["us_s"] = False
+        if self.params["gs_s"] and not len(self.params["gs_pins"]) == 3:
+            self.get_logger().warn(f"Grayscale sensor active but misconfigured: {len(self.params["gs_pins"])} out of 3 channel entries. Deactivating.")
+            self.params["gs_s"] = False
+        
+        self.get_logger().info(f'Starting Robot HAT Driver with {self.params}')
         
         # Initialise hardware with parameters
-        self.hw = RobotHatHardware(params, self.get_logger())
+        self.hw = RobotHatHardware(self.params, self.get_logger())
         self.sensors_active = True
 
         # Subscribers
@@ -81,10 +94,10 @@ class RobotHatNode(Node):
         self.usr_button_timer = self.create_timer(0.05, self.publish_usr_button)
         self.rst_button_pub = self.create_publisher(Empty, "rst_button", 10)
         self.rst_button_timer = self.create_timer(0.05, self.publish_rst_button)
-        if params["us_s"]:
+        if self.params["us_s"]:
             self.us_pub = self.create_publisher(Range, "sonar_range", 10)
             self.us_timer = self.create_timer(0.5, self.publish_sonar)
-        if params["gs_s"]:
+        if self.params["gs_s"]:
             self.gs_pub = self.create_publisher(Image, "grayscale", 10)
             self.gs_timer = self.create_timer(0.05, self.publish_grayscale)
             self.gs_cal_srv = self.create_service(Trigger, 'calibrate_grayscale', self.cal_gs_callback)

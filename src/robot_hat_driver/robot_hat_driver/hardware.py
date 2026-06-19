@@ -27,7 +27,11 @@ class RobotHatHardware:
         
         # Initialise hardware
         self.motors = Motors(params["lmid"], params["rmid"], params["lmrev"], params["rmrev"])
-        self.servos = [Servo(ch) for ch in params["servo_channels"]]
+        try: self.servos = [Servo(ch) for ch in params["servo_channels"]]
+        except ValueError as err:
+            self.logger.err("Could not initialise Servos: " + err)
+            self.servos = []
+        else: self.logger.info("Servos available")
         self.battery_adc = ADC("A4")
         self._led_active = False
         self._led = Pin('LED')
@@ -37,13 +41,19 @@ class RobotHatHardware:
         self._rst_btn_pressed = False
 
         if params['us_s']:
-            self.ultrasonic = Ultrasonic(Pin(params["us_pins"][0]), Pin(params["us_pins"][1], mode=Pin.IN, pull=Pin.PULL_DOWN))
-            self.logger.info("Sonar sensor available")
-
+            try: self.ultrasonic = Ultrasonic(Pin(params["us_pins"][0]), Pin(params["us_pins"][1], mode=Pin.IN, pull=Pin.PULL_DOWN))
+            except ValueError as err:
+                self.logger.err(f"Could not initialise Sonar sensor, deactivating: {err}")
+                self.params['us_s'] = False
+            else: self.logger.info("Sonar sensor available")
         if params['gs_s']:
-            adc0, adc1, adc2 = [ADC(pin) for pin in params['gs_pins']]
-            self.grayscale = Grayscale_Module(adc0, adc1, adc2, reference=None)
-            self.logger.info("Grayscale sensor available")
+            try:
+                adc0, adc1, adc2 = [ADC(pin) for pin in params['gs_pins']]
+                self.grayscale = Grayscale_Module(adc0, adc1, adc2, reference=None)
+            except ValueError as err:
+                self.logger.err(f"Could not initialise Grayscale sensor, deactivating: {err}")
+                self.params['gs_s'] = False
+            else: self.logger.info("Grayscale sensor available")
 
         self.logger.info("Hardware ready")
     
