@@ -6,6 +6,7 @@ robot_hat_node:
     motor_left_reversed: False
     motor_right_reversed: True
     servo_channels: ["P0"]
+    servo_correction: [10.0]
     ultrasonic_sensor: True
     ultrasonic_pins: ["D2", "D3"]
     grayscale_sensor: True

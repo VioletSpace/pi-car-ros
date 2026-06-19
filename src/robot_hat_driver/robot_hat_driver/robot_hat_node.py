@@ -36,6 +36,7 @@ class RobotHatNode(Node):
         self.declare_parameter("motor_left_reversed", False)
         self.declare_parameter("motor_right_reversed", False)
         self.declare_parameter("servo_channels", ["-1"])
+        self.declare_parameter("servo_correction", [0.0])
         self.declare_parameter("ultrasonic_sensor", False)
         self.declare_parameter("ultrasonic_pins", ["-1"])
         self.declare_parameter("grayscale_sensor", False)
@@ -48,6 +49,7 @@ class RobotHatNode(Node):
             "lmrev": self.get_parameter('motor_left_reversed').value,
             "rmrev": self.get_parameter('motor_right_reversed').value,
             "servo_channels": self.get_parameter('servo_channels').value,
+            "servo_corr": self.get_parameter('servo_correction').value,
             "us_s": self.get_parameter('ultrasonic_sensor').value,
             "us_pins": self.get_parameter('ultrasonic_pins').value,
             "gs_s": self.get_parameter('grayscale_sensor').value,

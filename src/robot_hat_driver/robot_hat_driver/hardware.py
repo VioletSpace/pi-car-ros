@@ -63,7 +63,7 @@ class RobotHatHardware:
 
     def set_servo(self, channel: int, angle: float):
         if channel < len(self.servos) and channel >= 0:
-            self.servos[channel].angle(angle)
+            self.servos[channel].angle(angle - self.params["servo_corr"][channel])
         else:
             self.logger.warn("Invalid servo index %d of %d" % (channel, len(self.servos)))
 
