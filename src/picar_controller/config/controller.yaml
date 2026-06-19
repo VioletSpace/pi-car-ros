@@ -10,3 +10,7 @@ line_follower_node:
 
 utility_service_node:
   ros__parameters:
+
+teleop_node:
+  ros__parameters:
+    timeout_sec: 1.0

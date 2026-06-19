@@ -9,4 +9,7 @@
   <node pkg="picar_controller" exec="utility_service" name="utility_service_node" respawn="true">
     <param from="$(find-pkg-share picar_controller)/config/controller.yaml" />
   </node>
+  <node pkg="picar_controller" exec="teleop" name="teleop_node" respawn="true">
+    <param from="$(find-pkg-share picar_controller)/config/controller.yaml" />
+  </node>
 </launch>

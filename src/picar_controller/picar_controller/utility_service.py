@@ -12,7 +12,7 @@ from picar_interfaces.srv import Utility
 class UtilityService(Node):
 
     def __init__(self):
-        super().__init__('utility_service')
+        super().__init__('utility_service_node')
 
         self.utility_srv = self.create_service(Utility, 'picar_utility', self.utility_callback)
 
