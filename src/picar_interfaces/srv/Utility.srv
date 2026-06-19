@@ -1,0 +1,5 @@
+# Utility.srv
+string cmd
+---
+bool success
+string message
