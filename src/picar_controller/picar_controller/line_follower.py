@@ -12,11 +12,11 @@ class LineFollower(Node):
     def __init__(self):
         super().__init__('line_follower')
         # Parameters
-        self.declare_parameter("timeout_sec", 0.5)
-        self.declare_parameter("max_steer_angle", 15.0)
-        self.declare_parameter("line_inverted", False)
-        self.declare_parameter("history_length", 5)
-        self.declare_parameter("button_toggle", False)
+        self.declare_parameter("timeout_sec", 0.5) # Timeout limit for sensor input until E-STOP
+        self.declare_parameter("max_steer_angle", 15.0) # Maximum steering servo angle
+        self.declare_parameter("line_inverted", False) # Is the line inverted (white on black)?
+        self.declare_parameter("history_length", 5) # Amount of line detection history to keep
+        self.declare_parameter("button_toggle", False) # Should this node listen to the USR/RST button topics for control?
         self.timeout_sec = self.get_parameter("timeout_sec").value
         self.k = self.get_parameter("max_steer_angle").value
         self.line_inv = self.get_parameter("line_inverted").value

@@ -29,7 +29,7 @@ class RobotHatNode(Node):
 
     def __init__(self):
         super().__init__("robot_hat_node")
-        
+        # Parameters
         self.declare_parameter("max_motor_percent", 100.0)
         self.declare_parameter("motor_left_id", 1)
         self.declare_parameter("motor_right_id", 2)
