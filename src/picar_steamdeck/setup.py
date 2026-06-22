@@ -26,6 +26,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-        ],
+             'deckin = picar_steamdeck.deck_input:main'
+     ],
     },
 )

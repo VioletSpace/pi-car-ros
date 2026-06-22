@@ -11,13 +11,9 @@
       <param from="$(find-pkg-share picar_steamdeck)/config/steamdeck.yaml" />
       <remap from="cmd_vel" to="/joy_teleop/cmd_vel" />
     </node>
+    <!-- start node handling other buttons/actions -->
+    <node pkg="picar_steamdeck" exec="deckin" name="deckin_node" >
+      <param from="$(find-pkg-share picar_steamdeck)/config/steamdeck.yaml" />
+    </node>
   </group>
-
-  <!-- start controller handling other buttons/actions -->
-  <!--
-  <node name="steamdeck_control" pkg="picar_steamdeck" exec="steamdeck_driver" output="screen">
-    <param from="$(find-pkg-share picar_steamdeck)/config/steamdeck.yaml" />
-  </node>
-  -->
-
 </launch>

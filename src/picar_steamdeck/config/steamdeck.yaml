@@ -23,3 +23,8 @@
     autorepeat_rate: 20.0
     dev: /dev/input/js0
 
+/steamdeck_joy_teleop/deckin_node:
+  ros__parameters:
+    timeout_sec: 10.0
+    cmds:
+      - "16:playsound test.mp3" # [...] button
