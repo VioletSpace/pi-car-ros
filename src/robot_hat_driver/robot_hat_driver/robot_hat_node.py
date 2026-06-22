@@ -18,7 +18,6 @@ import time
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
 from sensor_msgs.msg import BatteryState, Image, Range
 from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
 from std_srvs.srv import Trigger, SetBool
