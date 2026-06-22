@@ -26,5 +26,9 @@
 /deckin_node:
   ros__parameters:
     timeout_sec: 10.0
-    cmds:
-      - "15:calibrate grayscale" # [...] button
+    cmds: 
+      - "00:drivemode line_follow" # A
+      - "01:drivemode teleop"      # B
+      - "02:sensors activate"      # X
+      - "03:sensors deactivate"    # Y
+      - "15:calibrate grayscale"   # [...] button

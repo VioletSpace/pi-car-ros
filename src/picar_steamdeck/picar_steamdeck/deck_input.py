@@ -26,18 +26,13 @@ class DeckInput(Node):
         super().__init__('deck_input_node')
         # Parameters
         self.declare_parameter("timeout_sec", 5.0) # Timeout limit for robot connection until warning
-        self.declare_parameter("cmds", ["1:drivemode teleop"])
+        self.declare_parameter("cmds", ["99:undefined_cmd"])
         self.timeout_sec = self.get_parameter("timeout_sec").value
         cmd_list = self.get_parameter("cmds").value
 
         # Variables
         self.lbtns = [0 for _ in range(21)]
-        self.cmds = {
-            0: "drivemode line_follow", # A
-            1: "drivemode teleop",      # B
-            2: "sensors activate",      # X
-            3: "sensors deactivate"     # Y
-        }
+        self.cmds = {}
         if len(cmd_list) > 0:
             for item in cmd_list:
                 key, value = item.split(":", 1)
@@ -57,7 +52,7 @@ class DeckInput(Node):
         self.last_con_time = self.get_clock().now()
         self.create_timer(0.05, self.watchdog_cb)
         
-        self.get_logger().info("{0} started.".format(self.get_name()))
+        self.get_logger().info(f"{self.get_name()} started.")
 
     
     def call_utility(self, cmd, timeout=0.2):
