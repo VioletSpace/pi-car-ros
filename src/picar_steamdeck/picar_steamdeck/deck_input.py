@@ -13,7 +13,7 @@ class DeckInput(Node):
         super().__init__('deck_input_node')
         # Parameters
         self.declare_parameter("timeout_sec", 5.0) # Timeout limit for robot connection until warning
-        self.declare_parameter("cmds", [])
+        self.declare_parameter("cmds", ["1:drivemode teleop"])
         self.timeout_sec = self.get_parameter("timeout_sec").value
         cmd_list = self.get_parameter("cmds").value
 
