@@ -62,8 +62,8 @@ class DeckInput(Node):
         future.add_done_callback(done_callback)
     
     def joy_callback(self, msg: Joy):
-        for btn in msg.buttons:
-            if btn == 1 and btn in self.cmds.keys() and self.lbtns[btn] != 1:
+        for btn, state in enumerate(msg.buttons):
+            if state == 1 and btn in self.cmds.keys() and self.lbtns[btn] != 1:
                 self.call_utility(self.cmds[btn])
                 self.get_logger().info(f"Called {self.cmds[btn]}")
         self.lbtns = msg.buttons
