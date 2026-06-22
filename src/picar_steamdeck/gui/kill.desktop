@@ -2,6 +2,6 @@
 Version=1.0
 Type=Application
 Terminal=true
-Exec=/home/deck/ros2_ws/src/picar_steamdeck/scripts/controller.sh
-Name=PiCar Joystick Launcher
+Exec=/home/deck/ros2_ws/src/picar_steamdeck/scripts/kill_ros.sh
+Name=PiCar ROS Kill
 Icon=/home/deck/ros2_ws/src/picar_steamdeck/gui/picar_controller.png
