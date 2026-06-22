@@ -16,7 +16,7 @@
 
   <exec_depend>robot_hat_driver</exec_depend>
   <exec_depend>picar_description</exec_depend>
-  <depend>picar_interface</depend>
+  <depend>picar_interfaces</depend>
 
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
