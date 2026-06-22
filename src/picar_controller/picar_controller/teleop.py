@@ -76,7 +76,7 @@ class Teleop(Node):
 
         if dt > self.timeout_sec:
             if not self.estopped:
-                self.get_logger().error("E-STOP: Joystick timeout!")
+                self.get_logger().warn("E-STOP: Joystick timeout!")
             self.estopped = True
             if self.enabled: # Stop on joystick disconnect only if module active
                 self.publish_cmd(0.0, 0.0)
