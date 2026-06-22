@@ -73,9 +73,9 @@ class LineFollower(Node):
         if dt > self.timeout_sec:
             if not self.estopped:
                 self.get_logger().error("E-STOP: Grayscale timeout!")
+                if self.enabled: # Stop on sensor disconnect only if module active
+                    self.publish_cmd(0.0, 0.0)
             self.estopped = True
-            if self.enabled: # Stop on sensor disconnect only if module active
-                self.publish_cmd(0.0, 0.0)
         else:
             if self.estopped:
                 self.get_logger().info("Grayscale input received, resuming.")
