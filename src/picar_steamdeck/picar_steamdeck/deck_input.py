@@ -65,6 +65,7 @@ class DeckInput(Node):
         for btn in msg.buttons:
             if btn == 1 and btn in self.cmds.keys() and self.lbtns[btn] != 1:
                 self.call_utility(self.cmds[btn])
+                self.get_logger().info(f"Called {self.cmds[btn]}")
         self.lbtns = msg.buttons
 
     def con_callback(self, _: JointState):
