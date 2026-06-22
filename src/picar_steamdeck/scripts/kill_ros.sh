@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 xhost +SI:localuser:$USER
 
 # Run the command within the distrobox
