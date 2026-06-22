@@ -21,7 +21,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import BatteryState, Image, Range
 from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
-from std_srvs.srv import Trigger
+from std_srvs.srv import Trigger, SetBool
 from .hardware import RobotHatHardware
 
 from picar_interfaces.msg import ServoCmd
@@ -111,7 +111,11 @@ class RobotHatNode(Node):
             self.gs_timer = self.create_timer(0.05, self.publish_grayscale)
             self.gs_cal_srv = self.create_service(Trigger, 'calibrate_grayscale', self.cal_gs_callback)
 
+        # Enable/Disable sensors service
+        self.sensor_srv = self.create_service(SetBool, 'set_sensors', self.sensor_srv_callback)
+
         self.get_logger().info('Node ready')
+
 
     def led_callback(self, msg: Bool):
         """ Callback handling the /robot_hat_led topic subscriber """
@@ -248,6 +252,15 @@ class RobotHatNode(Node):
             response.message = "Grayscale sensor calibrated with {}.".format(cal)
         
         return response
+    
+    def sensor_srv_callback(self, req, res):
+        if (self.sensors_active != req.data):
+            self.sensors_active = req.data
+            res.message = f"Sensors {'enabled' if req.data else 'disabled'}."
+        else:
+            res.message = "Already in requested state."
+        res.success = True
+        return res
 
     def destroy_node(self):
         if not self.hw is None:

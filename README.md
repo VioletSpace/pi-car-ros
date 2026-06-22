@@ -163,8 +163,8 @@ robot_hat_node:
     - [x] Joint state publisher
     - [x] Transform
     - [x] Line following
-    - [ ] Object avoidance
-- [ ] Teleoperation
-    - [ ] Steamdeck support
+    - [x] Object avoidance
+- [x] Teleoperation
+    - [x] Steamdeck support
 
 Licensed under Apache-2.0

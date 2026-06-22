@@ -19,7 +19,7 @@ class UtilityService(Node):
         # Clients
         self.line_cli = self.create_client(SetBool, 'follow_line')
         self.teleop_cli = self.create_client(SetBool, 'teleop_control')
-        self.sensors_cli = self.create_client(SetBool, 'sensors_active')
+        self.sensors_cli = self.create_client(SetBool, 'set_sensors')
         
         self.get_logger().info("{0} started.".format(self.get_name()))
 
