@@ -24,6 +24,8 @@ from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
 from std_srvs.srv import Trigger
 from .hardware import RobotHatHardware
 
+from picar_interfaces.msg import ServoCmd
+
 
 class RobotHatNode(Node):
 
@@ -82,7 +84,7 @@ class RobotHatNode(Node):
 
         # Subscribers
         self.led_sub = self.create_subscription(Bool, "robot_hat_led", self.led_callback, 10)
-        self.servo_sub = self.create_subscription(Float64MultiArray, "servo_target_angles", self.servo_callback, 10)
+        self.servo_sub = self.create_subscription(ServoCmd, "servo_targets", self.servo_callback, 10)
         self.motor_sub = self.create_subscription(Float64, "motor_speed", self.motor_callback, 10)
         
         # Publishers with timers
@@ -112,16 +114,9 @@ class RobotHatNode(Node):
             self.get_logger().info("Deactivating Robot HAT LED")
         self.hw.led(msg.data)
 
-    def servo_callback(self, msg: Float64MultiArray):
-        """ Callback handling the /servo_target_angles topic subscriber """
-        if len(msg.data) != len(self.hw.servos):
-            self.get_logger().warn(
-                "Received mismatching servo target angles: %d angles for %d servos. Ignoring."
-                % (len(msg.data), len(self.hw.servos))
-            )
-            return
-        for i,angle in enumerate(msg.data):
-            self.hw.set_servo(i, angle)
+    def servo_callback(self, msg: ServoCmd):
+        """ Callback handling the /servo_targets topic subscriber """
+        self.hw.set_servo(msg.channel, msg.value)
 
     def motor_callback(self, msg: Float64):
         """ Callback handling the /motor_speed topic subscriber """

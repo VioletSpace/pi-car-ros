@@ -80,7 +80,7 @@ class RobotHatHardware:
         if channel < len(self.servos) and channel >= 0:
             self.servos[channel].angle(angle - self.params["servo_corr"][channel])
         else:
-            self.logger.warn("Invalid servo index %d of %d" % (channel, len(self.servos)))
+            self.logger.warn(f"Invalid servo index {channel} of {len(self.servos)}, ignoring.")
 
     def battery_voltage(self):
         raw = self.battery_adc.read_voltage()

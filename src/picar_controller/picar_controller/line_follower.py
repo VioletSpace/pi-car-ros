@@ -6,6 +6,7 @@ from sensor_msgs.msg import Image, Range
 from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
 from std_srvs.srv import SetBool, Trigger
 
+from picar_interfaces import ServoCmd
 
 class LineFollower(Node):
 
@@ -37,7 +38,7 @@ class LineFollower(Node):
 
         # Command publishers
         self.motor_pub = self.create_publisher(Float64, "motor_speed", 10)
-        self.servo_pub = self.create_publisher(Float64MultiArray, "servo_target_angles", 10)
+        self.servo_pub = self.create_publisher(ServoCmd, "servo_targets", 10)
         self.led_pub = self.create_publisher(Bool, "robot_hat_led", 10)
 
         # Enable/Disable service
@@ -176,8 +177,9 @@ class LineFollower(Node):
         """publishing helper"""
         mmsg = Float64()
         mmsg.data = float(motor_speed)
-        smsg = Float64MultiArray()
-        smsg.data = [float(servo_angle)]
+        smsg = ServoCmd()
+        smsg.channel = 0 # Steering servo
+        smsg.value = servo_angle
         self.motor_pub.publish(mmsg)
         self.servo_pub.publish(smsg)
 
