@@ -79,7 +79,14 @@ class RobotHatNode(Node):
         self.get_logger().info(f'Starting Robot HAT Driver with {self.params}')
         
         # Initialise hardware with parameters
-        self.hw = RobotHatHardware(self.params, self.get_logger())
+        try:
+            self.hw = RobotHatHardware(self.params, self.get_logger())
+        except RuntimeError as err:
+            self.get_logger().error(f"Critical error in hardware init, all rhdriver functionality disabled: {err}")
+            self.hw = None
+            return
+        
+        # Variables
         self.sensors_active = True
 
         # Subscribers
@@ -243,7 +250,8 @@ class RobotHatNode(Node):
         return response
 
     def destroy_node(self):
-        self.hw.stop()
+        if not self.hw is None:
+            self.hw.stop()
         super().destroy_node()
 
 

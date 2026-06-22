@@ -6,7 +6,7 @@ from sensor_msgs.msg import Image, Range
 from std_msgs.msg import Bool, Empty, Float64, Float64MultiArray
 from std_srvs.srv import SetBool, Trigger
 
-from picar_interfaces import ServoCmd
+from picar_interfaces.msg import ServoCmd
 
 class LineFollower(Node):
 
