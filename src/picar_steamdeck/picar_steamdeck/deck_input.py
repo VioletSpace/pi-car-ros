@@ -29,7 +29,9 @@ class DeckInput(Node):
             for item in cmd_list:
                 key, value = item.split(":", 1)
                 self.cmds[int(key)] = value
-        self.connected = False
+        self.disconnected = False
+
+        self.get_logger().info(f"deck commands: {self.cmds}")
 
         # Subscribers
         self.joy_sub = self.create_subscription(Joy,        "steamdeck_joy_teleop/joy", self.joy_callback, 10)
@@ -78,11 +80,11 @@ class DeckInput(Node):
         now = self.get_clock().now()
         dt = (now - self.last_con_time).nanoseconds * 1e-9
         if dt > self.timeout_sec:
-            if not self.connected: self.get_logger().warn("Robot connection timeout!")
-            self.connected = True
+            if not self.disconnected: self.get_logger().warn("Robot connection timeout!")
+            self.disconnected = True
         else:
-            if self.connected: self.get_logger().info("Robot reconnected.")
-            self.connected = False
+            if self.disconnected: self.get_logger().info("Robot reconnected.")
+            self.disconnected = False
 
 def main():
     try:

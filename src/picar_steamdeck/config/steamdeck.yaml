@@ -27,4 +27,4 @@
   ros__parameters:
     timeout_sec: 10.0
     cmds:
-      - "16:playsound test.mp3" # [...] button
+      - "16:calibrate grayscale" # [...] button
