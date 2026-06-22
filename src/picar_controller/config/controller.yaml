@@ -10,7 +10,9 @@ line_follower_node:
 
 utility_service_node:
   ros__parameters:
+    test: 0
 
 teleop_node:
   ros__parameters:
-    timeout_sec: 1.0
+    timeout_sec: 2.0
+    max_steer_angle: 30.0

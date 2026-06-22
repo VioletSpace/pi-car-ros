@@ -15,7 +15,9 @@ WorkingDirectory=/home/ex123
 # Wait for hardware to settle before starting ROS
 ExecStartPre=/bin/sleep 10
 # hope and pray that GPIO is ready at this point
+
 # ROS 2 environment + launch
+Environment=ROS_DOMAIN_ID=10
 ExecStart=/bin/bash -c 'source /opt/ros/kilted/setup.bash && \
 source /home/ex123/ros2_ws/install/setup.bash && \
 exec ros2 launch picar_startup bringup.launch'

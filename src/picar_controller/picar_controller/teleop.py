@@ -8,6 +8,7 @@ from std_srvs.srv import SetBool, Trigger
 from geometry_msgs.msg import Twist
 
 from picar_interfaces.srv import Utility
+from picar_interfaces.msg import ServoCmd
 
 
 class Teleop(Node):
@@ -17,21 +18,37 @@ class Teleop(Node):
 
         # Parameters
         self.declare_parameter("timeout_sec", 0.5) # Timeout limit for joystick input until E-STOP
+        self.declare_parameter("max_steer_angle", 20.0) # maximum steering angle
+        self.declare_parameter("max_speed", 100.0) # maximum motor percent
         self.timeout_sec = self.get_parameter("timeout_sec").value
+        self.k = self.get_parameter("max_steer_angle").value
+        self.s = self.get_parameter("max_speed").value
+        # Sanity check parameters:
+        # Motor precentage range
+        if self.s > 100.0 or self.s < 0.0:
+            self.get_logger().warn(f"Excessive max_speed of {self.s}. Clamping to 0 - 100")
+            self.s = max(0.0, min(100.0, self.s))
+        # Correct servo setup
+        if self.k > 45.0 or self.k < -45.0:
+            self.get_logger().warn(f"Excessive steering angle of {self.k} degrees. Clamping to (-45) - 45")
+            self.k = max(-45.0, min(45.0, self.k))
 
         # Variables
         self.enabled = False
+        self.estopped = False
+        self.steer = 0.0
+        self.speed = 0.0
 
         # Subscribers
         self.joy_cmd_sub = self.create_subscription(Twist, "/joy_teleop/cmd_vel", self.joy_cmd_callback, 10)
 
         # Command publishers
         self.motor_pub = self.create_publisher(Float64, "motor_speed", 10)
-        self.servo_pub = self.create_publisher(Float64MultiArray, "servo_target_angles", 10)
+        self.servo_pub = self.create_publisher(ServoCmd, "servo_targets", 10)
         self.led_pub = self.create_publisher(Bool, "robot_hat_led", 10)
 
         # Enable/Disable service
-        self.line_srv = self.create_service(SetBool, 'teleop_control', self.enable_srv_callback)
+        self.teleop_srv = self.create_service(SetBool, 'teleop_control', self.enable_srv_callback)
 
         # Timeout watchdog for Joystick input
         self.last_cmd_time = self.get_clock().now()
@@ -41,9 +58,11 @@ class Teleop(Node):
 
     def joy_cmd_callback(self, msg: Twist):
         self.last_cmd_time = self.get_clock().now()
-        if self.estopped or not self.enabled:
+        if not self.enabled:
             return
-        self.publish_cmd(0.0, 0.0)
+        self.steer = msg.angular.z
+        self.speed = msg.linear.x
+        self.publish_cmd(self.speed * self.s, self.steer * self.k)
 
     def watchdog_cb(self):
         """
@@ -89,8 +108,9 @@ class Teleop(Node):
         """publishing helper"""
         mmsg = Float64()
         mmsg.data = float(motor_speed)
-        smsg = Float64MultiArray()
-        smsg.data = [float(servo_angle)]
+        smsg = ServoCmd()
+        smsg.channel = 0 # Steering servo
+        smsg.value = servo_angle
         self.motor_pub.publish(mmsg)
         self.servo_pub.publish(smsg)
 

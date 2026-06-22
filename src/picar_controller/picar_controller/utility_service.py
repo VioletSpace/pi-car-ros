@@ -18,41 +18,74 @@ class UtilityService(Node):
 
         # Clients
         self.line_cli = self.create_client(SetBool, 'follow_line')
+        self.teleop_cli = self.create_client(SetBool, 'teleop_control')
+        self.sensors_cli = self.create_client(SetBool, 'sensors_active')
         
         self.get_logger().info("{0} started.".format(self.get_name()))
 
-    def utility_callback(self, request, response):
-        cmd = request.cmd.split()
-        response.success = False
+    def utility_callback(self, req, res):
+        cmd = req.cmd.split()
+        res.success = False
         if not cmd:
-            response.message = "Empty command"
-            return response
+            self.get_logger().warn("Utility service received empty command. Ignoring.")
+            res.message = "Empty command"
+            return res
 
         match cmd[0]:
-            case "drivemode-manual": 
-                response.success = self.set_drive_mode(False)
-                response.message = (
-                    "Drive mode set to manual"
-                    if response.success
-                    else "Failed to set drive mode"
-                )
-            case "drivemode-auto": 
-                response.success = self.set_drive_mode(True)
-                response.message = (
-                    "Drive mode set to automatic"
-                    if response.success
-                    else "Failed to set drive mode"
-                )
+            case "drivemode": 
+                if len(cmd) < 2:
+                    res.message = ("No arg specified")
+                    return
+                match cmd[1]:
+                    case "teleop":
+                        res.success = self.set_drive_mode(0)
+                    case "line_follow":
+                        res.success = self.set_drive_mode(1)
+                    case _:
+                        res.message = ("Unknown drive mode")
+                        return
+                res.message = ("Drive mode set" if res.success else "Failed to set drive mode")
+            case "sensors":
+                if len(cmd) < 2:
+                    res.message = ("No arg specified")
+                    return
+                match cmd[1]:
+                    case "activate":
+                        res.success = self.call_setbool(self.sensors_cli, True)
+                    case "deactivate":
+                        res.success = self.call_setbool(self.sensors_cli, False)
+                    case _:
+                        res.message = ("Unknown sensor state")
+                        return
+                res.message = ("Sensors set" if res.success else "Failed to set sensors")
             case _:
-                response.message = "Not yet implemented"
+                res.message = "Not yet implemented/Unknown"
         
-        return response
+        self.get_logger().info(f"cmd: {cmd}, res: {res.message}")
+        return res
 
-    def set_drive_mode(self, mode: bool):
+    def set_drive_mode(self, mode: int):
+        res_line = self.call_setbool(self.line_cli, mode == 1)
+        res_tele = self.call_setbool(self.teleop_cli, mode == 0)
+        return res_line and res_tele
+    
+    def call_setbool(self, client, value, timeout=0.2):
+        if not client.wait_for_service(timeout_sec=timeout):
+            return False
         req = SetBool.Request()
-        req.data = mode
-        res = self.line_cli.call(req)
-        return res.success
+        req.data = value
+        future = client.call_async(req)
+    
+        def done_callback(fut):
+            try:
+                res = fut.result()
+                self.get_logger().info(f"Service succeded: {res.success}")
+            except Exception as e:
+                self.get_logger().error(f"Service failed: {e}")
+
+        future.add_done_callback(done_callback)
+        
+        return True
 
 def main():
     try:
