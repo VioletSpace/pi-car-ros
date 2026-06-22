@@ -215,7 +215,7 @@ class RobotHatNode(Node):
         if not self.sensors_active:
             response.success = False
             response.message = "Sensors are not active. Calibration unsuccessful."
-        elif not self.get_parameter('grayscale_sensor').value:
+        elif not self.params['gs_s']:
             response.success = False
             response.message = "Grayscale sensor not present. Calibration unsuccessful."
         else:
@@ -244,6 +244,7 @@ class RobotHatNode(Node):
                 cal
             )
             self.set_parameters([gs_cal_par])
+            self.params['gs_cal'] = cal
             self.hw.led(True) # flash LED, done
             time.sleep(0.1)
             self.hw.led(False)

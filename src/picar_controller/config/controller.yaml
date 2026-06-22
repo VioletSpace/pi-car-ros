@@ -16,3 +16,5 @@ teleop_node:
   ros__parameters:
     timeout_sec: 2.0
     max_steer_angle: 30.0
+    cmds:
+      - "16:calibrate grayscale"

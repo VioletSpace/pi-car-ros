@@ -20,6 +20,7 @@ class UtilityService(Node):
         self.line_cli = self.create_client(SetBool, 'follow_line')
         self.teleop_cli = self.create_client(SetBool, 'teleop_control')
         self.sensors_cli = self.create_client(SetBool, 'set_sensors')
+        self.cal_client = self.create_client(Trigger, 'calibrate_grayscale')
         
         self.get_logger().info("{0} started.".format(self.get_name()))
 
@@ -58,6 +59,17 @@ class UtilityService(Node):
                         res.message = ("Unknown sensor state")
                         return
                 res.message = ("Sensors set" if res.success else "Failed to set sensors")
+            case "calibrate":
+                if len(cmd) < 2:
+                    res.message = ("No arg specified")
+                    return
+                match cmd[1]:
+                    case "grayscale":
+                        res.success = self.call_trigger(self.sensors_cli)
+                    case _:
+                        res.message = ("Unknown target")
+                        return
+                res.message = ("Calibration successful" if res.success else "Failed to calibrate")
             case _:
                 res.message = "Not yet implemented/Unknown"
         
@@ -69,22 +81,28 @@ class UtilityService(Node):
         res_tele = self.call_setbool(self.teleop_cli, mode == 0)
         return res_line and res_tele
     
+    def srv_done_callback(self, fut):
+        try:
+            res = fut.result()
+            self.get_logger().info(f"Service succeded: {res.success}")
+        except Exception as e:
+            self.get_logger().error(f"Service failed: {e}")
+    
     def call_setbool(self, client, value, timeout=0.2):
         if not client.wait_for_service(timeout_sec=timeout):
             return False
         req = SetBool.Request()
         req.data = value
         future = client.call_async(req)
+        future.add_done_callback(self.srv_done_callback)
+        return True
     
-        def done_callback(fut):
-            try:
-                res = fut.result()
-                self.get_logger().info(f"Service succeded: {res.success}")
-            except Exception as e:
-                self.get_logger().error(f"Service failed: {e}")
-
-        future.add_done_callback(done_callback)
-        
+    def call_trigger(self, client, timeout=0.2):
+        if not client.wait_for_service(timeout_sec=timeout):
+            return False
+        req = Trigger.Request()
+        future = client.call_async(req)
+        future.add_done_callback(self.srv_done_callback)
         return True
 
 def main():

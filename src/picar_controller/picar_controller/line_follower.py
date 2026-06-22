@@ -54,9 +54,8 @@ class LineFollower(Node):
         if self.btn:
             self.usr_btn_sub = self.create_subscription(Empty, "usr_button", self.enable_trig_callback, 10)
             self.rst_btn_sub = self.create_subscription(Empty, "rst_button", self.cal_callback, 10)
-
-        # Grayscale calibration client
-        self.cal_client = self.create_client(Trigger, 'calibrate_grayscale')
+            # Grayscale calibration client
+            self.cal_client = self.create_client(Trigger, 'calibrate_grayscale')
         
         self.get_logger().info("{0} started.".format(self.get_name()))
 

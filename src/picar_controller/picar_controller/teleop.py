@@ -17,7 +17,7 @@ class Teleop(Node):
         super().__init__('teleop_node')
 
         # Parameters
-        self.declare_parameter("timeout_sec", 0.5) # Timeout limit for joystick input until E-STOP
+        self.declare_parameter("timeout_sec", 0.1) # Timeout limit for joystick input until E-STOP
         self.declare_parameter("max_steer_angle", 20.0) # maximum steering angle
         self.declare_parameter("max_speed", 100.0) # maximum motor percent
         self.timeout_sec = self.get_parameter("timeout_sec").value
