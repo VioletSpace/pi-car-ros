@@ -29,6 +29,7 @@ class DeckInput(Node):
             for item in cmd_list:
                 key, value = item.split(":", 1)
                 self.cmds[int(key)] = value
+        self.connected = False
 
         # Subscribers
         self.joy_sub = self.create_subscription(Joy,        "steamdeck_joy_teleop/joy", self.joy_callback, 10)
@@ -74,7 +75,7 @@ class DeckInput(Node):
         This is a watchdog timer to detect if the controller is not connected to the robot.
         """
         now = self.get_clock().now()
-        dt = (now - self.last_gs_time).nanoseconds * 1e-9
+        dt = (now - self.last_con_time).nanoseconds * 1e-9
         if dt > self.timeout_sec:
             if not self.connected: self.get_logger().warn("Robot connection timeout!")
             self.connected = True
