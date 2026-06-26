@@ -87,6 +87,24 @@ class RobotHatHardware:
         raw = self.battery_adc.read_voltage()
         return float(raw * 3)
     
+    def charge_perc(volt, n_cells=1):
+        chargecurve = {
+          4.2: 1.0,
+          3.975: 0.55,
+          3.9: 0.3,
+          3.8: 0.2,
+          3.6: 0.11,
+          3.3: 0.0
+        }
+        v = volt / n_cells
+        if v >= max(chargecurve.keys()): return 1.0
+        if v <= min(chargecurve.keys()): return   0.0
+        t = min([k for k in chargecurve.keys() if v <= k])
+        b = max([k for k in chargecurve.keys() if v >= k])
+        if t == b: return chargecurve[b]
+        p = (v-b)/(t-b)*(chargecurve[t]-chargecurve[b])+chargecurve[b]
+        return p
+    
     def usr_button_pressed(self):
         """Has the USR button just been released from a press?"""
         cpressed = self._usr_btn.value() == 1

@@ -142,7 +142,7 @@ class RobotHatNode(Node):
     def publish_battery(self):
         """ Publishing callback for the /battery_state topic """
         volt = self.hw.battery_voltage()
-        perc = min(1.0, (volt - 4.0) / 4.4)
+        perc = RobotHatHardware.charge_perc(volt, n_cells=2)
         battery = BatteryState()
         battery.header.stamp = self.get_clock().now().to_msg()
         battery.header.frame_id = 'base_link'
