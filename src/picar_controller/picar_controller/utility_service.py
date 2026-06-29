@@ -76,7 +76,7 @@ class UtilityService(Node):
                     return
                 match cmd[1]:
                     case "grayscale":
-                        res.success = self.call_trigger(self.sensors_cli)
+                        res.success = self.call_trigger(self.cal_client)
                     case _:
                         res.message = ("Unknown target")
                         return
