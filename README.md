@@ -220,7 +220,7 @@ for information on the installation process.
 
 Parameters loaded from config file with default values:
 ```yaml
-/deckin_node:
+deck_input_node:
   ros__parameters:
     timeout_sec: 5.0
     cmds: 
