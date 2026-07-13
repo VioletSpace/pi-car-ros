@@ -1,5 +1,6 @@
 # PiCar-ROS
-ROS 2 Kilted control stack for a Raspberry Pi 4 robot car. 
+
+ROS 2 Kilted control stack for a Raspberry Pi 4 robot car.
 
 This repository provides a fully implemented control stack using ROS 2 Kilted through
 multiple ROS modules. At the heart of this software is the `robot_hat_driver` module which directly
@@ -9,26 +10,34 @@ Although this project is targeted at the SunFounder PiCar-X it could be adapted 
 using the SunFounder Robot HAT.
 
 ## Installation
+
 To install this control stack on a robot, a Ubuntu 24.04 OS and a [ROS 2 Kilted installation](https://docs.ros.org/en/kilted/Installation/Ubuntu-Install-Debs.html)
 on the Raspberry Pi are required. Alternatively, using containerisation through tools like distrobox
 is possible but might degrade performance on low-spec systems.
 Clone the repository into the Raspberry Pis home directory and rename via
+
 ```console
 mv ~/pi-car-ros ~/ros2_ws
 ```
+
 Install ROS dependencies and build the repository:
+
 ```console
 source /opt/ros/kilted/setup.bash && cd ~/ros2_ws
 rosdep install --from-paths src -y --ignore-src
 colcon build --symlink-install
 ```
+
 Then source it and start the control stack with:
+
 ```console
 source install/setup.bash
 ros2 launch picar_startup bringup.launch
 ```
+
 If you want to automatically restart the control stack on boot (recommended), you can use the robot_startup.service.
 You will want to change the user "ex123" in robot_startup.service to your user (by default pi). Then:
+
 ```console
 sudo cp ~/ros2_ws/robot_startup.service /etc/systemd/system/ # copy startup service
 sudo systemctl daemon-reload
@@ -67,13 +76,14 @@ icon on the desktop. To shut down the controller, use the Terminate icon on the 
 is registered, make sure that Steam is not running and capturing input in the background)
 
 Controls:
+
 - Left stick: Drive forward/backward
 - Right stick: Steer left/right
 - L1: Dead man's switch (slow, 40% speed)
 - R1: Dead man's switch (fast, 100% speed)
 - X/Y: Enable/Disable sensors
 - A/B: Line following/Teleoperation driving modes
-- (…): Start grayscale sensor calibration sequence 
+- (…): Start grayscale sensor calibration sequence
 
 ## Structure
 
@@ -91,6 +101,7 @@ in the description file (hence the additional `.xacro` file ending) but none are
 ### picar_interfaces
 
 A library package defining interfaces used in other packages:
+
 - `ServoCmd` message, message type specifiying a target servo channel and angle
 - `UtilitySrv` service, service type for handling command strings, reports success as a bool and an optional message string
 
@@ -110,6 +121,7 @@ the `teleop` node that translates teleoperation control input into hardware comm
 
 Currently the only job of the `state_publisher` is to update the steering servo angles on the
 transform tree.
+
 - Publishes: `JointState /joint_states`
 - Broadcasts: `TransformBroadcaster`
 - Subscribes: `Float64MultiArray /servo_angles`
@@ -117,12 +129,13 @@ transform tree.
 The `utility_service` node advertises a service that translates command strings from a controlling
 device into hardware commands. This architecture helps reduces complexity and increase reusability
 and resilience in the Steamdeck controller logic.
+
 - Services: `/picar_interfaces/srv/UtilitySrv /picar_utility`
 - Clients:
-    - `std_srvs/srv/SetBool /follow_line`
-    - `std_srvs/srv/SetBool /teleop_control`
-    - `std_srvs/srv/SetBool /set_sensors`
-    - `std_srvs/srv/Trigger /calibrate_grayscale`
+  - `std_srvs/srv/SetBool /follow_line`
+  - `std_srvs/srv/SetBool /teleop_control`
+  - `std_srvs/srv/SetBool /set_sensors`
+  - `std_srvs/srv/Trigger /calibrate_grayscale`
 
 The `line_follower` node is more involved. It starts by default but is in a disabled state that must
 be enabled via a service call or, if configured so, through an `Empty` message on the `/usr_button`
@@ -131,18 +144,19 @@ a specified length of time (default: 0.5s). If disabled or e-stopped, the node d
 enabled, the node will process sensor data from the grayscale sensor, attempt line recognition
 and send new motor speed and steering commands. If no line is found (line not present, insufficient
 contrast, broken calibration…) the node will signal this by turning on the indicator LED on the HAT.
-- Publishes: 
-    - `std_msgs/msg/Float64 /motor_speed`
-    - `/picar_interfaces/msg/ServoCmd /servo_targets`
-    - `std_msgs/msg/Bool /robot_hat_led`
+
+- Publishes:
+  - `std_msgs/msg/Float64 /motor_speed`
+  - `/picar_interfaces/msg/ServoCmd /servo_targets`
+  - `std_msgs/msg/Bool /robot_hat_led`
 - Subscribes:
-    - `sensor_msgs/msg/Image /grayscale` (3x1 mono16)
-    - `std_msgs/msg/Empty /usr_button` (if parameter `button_toggle: True`)
-    - `std_msgs/msg/Empty /rst_button` (if parameter `button_toggle: True`)
+  - `sensor_msgs/msg/Image /grayscale` (3x1 mono16)
+  - `std_msgs/msg/Empty /usr_button` (if parameter `button_toggle: True`)
+  - `std_msgs/msg/Empty /rst_button` (if parameter `button_toggle: True`)
 - Services:
-    - `std_srvs/srv/SetBool /follow_line` (enable/disable line following)
+  - `std_srvs/srv/SetBool /follow_line` (enable/disable line following)
 - Clients:
-    - `std_srvs/srv/Trigger /calibrate_grayscale` (triggers grayscale calibration sequence)
+  - `std_srvs/srv/Trigger /calibrate_grayscale` (triggers grayscale calibration sequence)
 
 Finally, the `teleop` node takes in `Twist` command velocity messages and translates these into motor
 speed and servo steering messages. This node, like `line_follower`, is disabled by default and needs
@@ -153,6 +167,7 @@ recommended.
 
 All nodes in the picar_controller package take in parameters from the same config file. Here with
 defaults:
+
 ```yaml
 state_publisher:
   ros__parameters:
@@ -177,22 +192,24 @@ teleop_node:
 This package interfaces with the Robot HAT hardware and exposes relevant topics. Some code has been
 adapted from [sunfounder/robot-hat](https://github.com/sunfounder/robot-hat). It contains the
 `rhdriver` node that manages all hardware interaction.
+
 - Publishes:
-    - `sensor_msgs/msg/BatteryState /battery_state`
-    - `sensor_msgs/msg/Range /sonar_range` (if sonar sensor configured)
-    - `sensor_msgs/msg/Image /grayscale`   (if grayscale sensor configured)
-    - `std_msgs/msg/Float64MultiArray /servo_angles`
-    - `std_msgs/msg/Empty /usr_button` (publishes Empty when button released)
-    - `std_msgs/msg/Empty /rst_button` (publishes Empty when button released)
+  - `sensor_msgs/msg/BatteryState /battery_state`
+  - `sensor_msgs/msg/Range /sonar_range` (if sonar sensor configured)
+  - `sensor_msgs/msg/Image /grayscale`   (if grayscale sensor configured)
+  - `std_msgs/msg/Float64MultiArray /servo_angles`
+  - `std_msgs/msg/Empty /usr_button` (publishes Empty when button released)
+  - `std_msgs/msg/Empty /rst_button` (publishes Empty when button released)
 - Subscribes:
-    - `std_msgs/msg/Bool /robot_hat_led` (control indicator LED)
-    - `/picar_interfaces/msg/ServoCmd /servo_targets` (control servos)
-    - `std_msgs/msg/Float64 /motor_speed` (control motor_speed)
+  - `std_msgs/msg/Bool /robot_hat_led` (control indicator LED)
+  - `/picar_interfaces/msg/ServoCmd /servo_targets` (control servos)
+  - `std_msgs/msg/Float64 /motor_speed` (control motor_speed)
 - Services:
-    - `std_srvs/srv/Trigger /calibrate_grayscale` (if grayscale sensor configured)
-    - `std_srvs/srv/SetBool /set_sensors` (enable/disable sensors)
+  - `std_srvs/srv/Trigger /calibrate_grayscale` (if grayscale sensor configured)
+  - `std_srvs/srv/SetBool /set_sensors` (enable/disable sensors)
 
 Parameters loaded from config file with default values:
+
 ```yaml
 robot_hat_node:
   ros__parameters:
@@ -219,6 +236,7 @@ to work with ROS2 on unsupported OSs (i.E. Steam OS) through distrobox. See "Run
 for information on the installation process.
 
 Parameters loaded from config file with default values:
+
 ```yaml
 deck_input_node:
   ros__parameters:
@@ -230,21 +248,22 @@ deck_input_node:
 ## Roadmap
 
 This project is considered to be completed:
+
 - [x] Robot HAT driver module
-    - [x] Hardware checks
-    - [x] Servo control
-    - [x] Motor control
-    - [x] Battery reporting
-    - [x] Sensor support
+  - [x] Hardware checks
+  - [x] Servo control
+  - [x] Motor control
+  - [x] Battery reporting
+  - [x] Sensor support
 - [x] Robot description
-    - [x] Accurate transform tree
-    - [x] 3D model
+  - [x] Accurate transform tree
+  - [x] 3D model
 - [x] Robot controller
-    - [x] Joint state publisher
-    - [x] Transform
-    - [x] Line following
-    - [x] Object avoidance
+  - [x] Joint state publisher
+  - [x] Transform
+  - [x] Line following
+  - [x] Object avoidance
 - [x] Teleoperation
-    - [x] Steamdeck support
+  - [x] Steamdeck support
 
 Licensed under Apache-2.0
